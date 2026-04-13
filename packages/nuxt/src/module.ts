@@ -3,17 +3,28 @@ import { fileURLToPath } from 'node:url'
 import { createJiti } from 'jiti'
 import { dirname, extname, isAbsolute, resolve } from 'pathe'
 import {
-  addServerHandler,
   addTypeTemplate,
   addVitePlugin,
   createResolver,
   defineNuxtModule,
 } from '@nuxt/kit'
 import type { NuxtModule } from '@nuxt/schema'
-import type { ApiCollection } from './collection'
+import {
+  parseCallaCollectionEntry,
+  type CallaCollection,
+  type ApiRouteGroup,
+} from './collection'
+import {
+  assertNoComparableRouteConflicts,
+  filterExcludedCollectionHandlers,
+  toComparableHostHandler,
+  toComparableCollectionHandler,
+  type CollectionHandler,
+} from './conflict'
 import { resolveCollectionRefs } from './collection-ref'
+import { resolveRouteGroupIgnore } from './ignore'
 import { CALLA_MODULE_ID, genSdkrTemplate } from './templates'
-import { scanServerRoutes, type ScannedServerRoute } from './scan'
+import { scanServerRoutes } from './scan'
 import { createCallaToUseFetchPlugin } from './transform'
 
 export * from './collection'
@@ -23,16 +34,18 @@ const jiti = createJiti(import.meta.url)
 export interface ModuleOptions {
   collections: string[]
   injectCallaToGlobal: boolean
+  exclude: string[]
 }
 
-interface LoadedCollection extends ApiCollection {
+interface LoadedCollection extends CallaCollection {
   moduleRoot: string
   serverRoot: string
   storesRoot: string
 }
 
-interface CollectionHandler extends ScannedServerRoute {
-  collectionName: string
+function describeRouteGroup(group: ApiRouteGroup) {
+  const dir = group.dir instanceof RegExp ? group.dir.toString() : group.dir
+  return `"${dir}" -> "${group.clientPrefix}"`
 }
 
 function isFileLikePath(path: string) {
@@ -63,15 +76,13 @@ function resolveCollectionRoot(
 async function loadCollection(
   collectionPath: string,
 ): Promise<LoadedCollection> {
-  const normalizedCollection = (await jiti.import(collectionPath, {
+  const importedCollection = await jiti.import(collectionPath, {
     default: true,
-  })) as ApiCollection | undefined
-
-  if (!normalizedCollection) {
-    throw new Error(
-      `[sdkr] Collection "${collectionPath}" must export a default ApiCollection.`,
-    )
-  }
+  })
+  const normalizedCollection = parseCallaCollectionEntry(
+    importedCollection,
+    collectionPath,
+  )
 
   if (
     !Array.isArray(normalizedCollection.routeGroups)
@@ -101,13 +112,26 @@ async function loadCollections(collectionRefs: string[]) {
 async function scanCollectionRoutes(
   collection: LoadedCollection,
 ): Promise<CollectionHandler[]> {
-  const ignore = ['**/types/**', '**/*.types.*', ...(collection.ignore ?? [])]
-
   const handlerGroups = await Promise.all(
-    collection.routeGroups.map(group =>
-      scanServerRoutes(collection.moduleRoot, group.dir, group.clientPrefix, {
-        ignore,
-      }),
+    collection.routeGroups.map((group) => {
+      const ignore = resolveRouteGroupIgnore(
+        collection.ignore,
+        group.ignore,
+        {
+          collectionName: collection.name,
+          routeGroupLabel: describeRouteGroup(group),
+        },
+      )
+
+      return scanServerRoutes(
+        collection.moduleRoot,
+        group.dir,
+        group.clientPrefix,
+        {
+          ignore,
+        },
+      )
+    },
     ),
   )
 
@@ -124,30 +148,6 @@ async function scanConfiguredCollections(collections: LoadedCollection[]) {
   return handlerGroups.flat()
 }
 
-function routesConflict(a: CollectionHandler, b: CollectionHandler) {
-  if (a.route !== b.route) return false
-  if (!a.method || !b.method) return true
-  return a.method === b.method
-}
-
-function assertNoRouteConflicts(handlers: CollectionHandler[]) {
-  const visited: CollectionHandler[] = []
-
-  handlers.forEach((handler) => {
-    const conflict = visited.find(existing =>
-      routesConflict(existing, handler),
-    )
-    if (conflict) {
-      throw new Error(
-        `[sdkr] Route conflict on ${handler.method ?? '*'} ${handler.route}: `
-        + `${conflict.collectionName} (${conflict.handler}) conflicts with `
-        + `${handler.collectionName} (${handler.handler}).`,
-      )
-    }
-    visited.push(handler)
-  })
-}
-
 const sdkrModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'sdkr',
@@ -156,6 +156,7 @@ const sdkrModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
   defaults: {
     collections: [],
     injectCallaToGlobal: true,
+    exclude: [],
   },
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
@@ -170,12 +171,70 @@ const sdkrModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
       nuxt.options.watch.push(collection.serverRoot)
     })
 
-    let setupHandlers: CollectionHandler[] | undefined
-      = await scanConfiguredCollections(collections)
-    assertNoRouteConflicts(setupHandlers)
-    setupHandlers.forEach((handler) => {
-      const { collectionName: _collectionName, ...serverHandler } = handler
-      addServerHandler(serverHandler)
+    const getActiveCollectionHandlers = async () => {
+      const scannedHandlers = await scanConfiguredCollections(collections)
+      const filteredHandlers = filterExcludedCollectionHandlers(
+        scannedHandlers,
+        options.exclude,
+      )
+
+      assertNoComparableRouteConflicts(
+        filteredHandlers.map(toComparableCollectionHandler),
+      )
+
+      return filteredHandlers
+    }
+
+    let activeCollectionHandlers: CollectionHandler[] | undefined
+      = await getActiveCollectionHandlers()
+
+    nuxt.hook('nitro:config', async (nitroConfig) => {
+      activeCollectionHandlers = await getActiveCollectionHandlers()
+
+      const collectionHandlerPaths = new Set(
+        activeCollectionHandlers.map(handler => handler.handler),
+      )
+      const hostHandlers = [
+        ...(nuxt.options.serverHandlers ?? []),
+        ...(nitroConfig.handlers ?? []),
+      ]
+        .filter(handler => !collectionHandlerPaths.has(handler.handler))
+        .map(toComparableHostHandler)
+      const collectionHandlers = activeCollectionHandlers.map(
+        toComparableCollectionHandler,
+      )
+
+      assertNoComparableRouteConflicts([
+        ...hostHandlers,
+        ...collectionHandlers,
+      ], { crossSourceOnly: true })
+
+      nitroConfig.handlers ||= []
+      nitroConfig.handlers.push(
+        ...activeCollectionHandlers.map(
+          ({ collectionName: _collectionName, ...handler }) => handler,
+        ),
+      )
+    })
+
+    nuxt.hook('nitro:init', async (nitro) => {
+      activeCollectionHandlers = activeCollectionHandlers
+        ?? (await getActiveCollectionHandlers())
+
+      const collectionHandlerPaths = new Set(
+        activeCollectionHandlers.map(handler => handler.handler),
+      )
+      const hostHandlers = nitro.scannedHandlers
+        .filter(handler => !collectionHandlerPaths.has(handler.handler))
+        .map(toComparableHostHandler)
+      const collectionHandlers = activeCollectionHandlers.map(
+        toComparableCollectionHandler,
+      )
+
+      assertNoComparableRouteConflicts([
+        ...hostHandlers,
+        ...collectionHandlers,
+      ], { crossSourceOnly: true })
     })
 
     nuxt.options.alias[CALLA_MODULE_ID] = callaEntry
@@ -184,13 +243,12 @@ const sdkrModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
       filename: 'types/sdkr.d.ts',
       getContents: async () => {
         const handlers
-          = setupHandlers ?? (await scanConfiguredCollections(collections))
-        assertNoRouteConflicts(handlers)
+          = activeCollectionHandlers ?? (await getActiveCollectionHandlers())
         return genSdkrTemplate(handlers, options.injectCallaToGlobal)
       },
     })
 
-    setupHandlers = undefined
+    activeCollectionHandlers = undefined
 
     nuxt.hook('imports:dirs', (dirs) => {
       collections.forEach((collection) => {

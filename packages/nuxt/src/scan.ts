@@ -1,6 +1,7 @@
 import { join, relative } from 'pathe'
 import { glob } from 'tinyglobby'
 import { withBase, withLeadingSlash, withoutTrailingSlash } from 'ufo'
+import { isIgnoredPath } from './ignore'
 
 export const GLOB_SCAN_PATTERN = '**/*.{js,mjs,cjs,ts,mts,cts,tsx,jsx}'
 
@@ -33,6 +34,10 @@ function normalizeRegex(regex: RegExp) {
   return new RegExp(regex.source, regex.flags.replaceAll('g', ''))
 }
 
+function sanitizeRouteParam(name: string) {
+  return name.replace(/[^\w-]/g, '_')
+}
+
 async function scanDir(
   rootDir: string,
   dir: string,
@@ -42,7 +47,6 @@ async function scanDir(
   const fileNames = await glob(GLOB_SCAN_PATTERN, {
     cwd: baseDir,
     dot: true,
-    ignore: opts?.ignore,
     absolute: true,
   }).catch((error) => {
     if (error?.code === 'ENOTDIR') {
@@ -57,6 +61,7 @@ async function scanDir(
       fullPath,
       path: normalizePath(relative(baseDir, fullPath)),
     }))
+    .filter(file => !isIgnoredPath(file.path, opts?.ignore))
     .sort((a, b) => a.path.localeCompare(b.path))
 }
 
@@ -69,13 +74,14 @@ async function scanRegex(
   const fileNames = await glob(GLOB_SCAN_PATTERN, {
     cwd: rootDir,
     dot: true,
-    ignore: opts?.ignore,
     absolute: true,
   })
 
   return fileNames
     .map((fullPath) => {
       const relativePath = normalizePath(relative(rootDir, fullPath))
+      if (isIgnoredPath(relativePath, opts?.ignore)) return null
+
       const match = matcher.exec(relativePath)
       if (!match || match.index !== 0) return null
 
@@ -116,8 +122,8 @@ export async function scanServerRoutes(
       .replace(/\.[A-Z]+$/i, '')
       .replace(/\(([^(/\\]+)\)[/\\]/g, '')
       .replace(/\[\.{3}\]/g, '**')
-      .replace(/\[\.{3}(\w+)\]/g, '**:$1')
-      .replace(/\[([^/\]]+)\]/g, ':$1')
+      .replace(/\[\.{3}([^\]]+)\]/g, (_, name: string) => `**:${sanitizeRouteParam(name)}`)
+      .replace(/\[([^/\]]+)\]/g, (_, name: string) => `:${sanitizeRouteParam(name)}`)
 
     route = withLeadingSlash(withoutTrailingSlash(withBase(route, prefix)))
 

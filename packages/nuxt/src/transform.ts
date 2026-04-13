@@ -22,7 +22,6 @@ interface AstNode {
 }
 
 const CALLA_CALL_NAME = 'calla'
-const DEFINE_API_COLLECTION_NAME = 'defineApiCollection'
 const USE_FETCH_NAME = 'useFetch'
 const SCRIPT_LANG_SUFFIX: Record<string, string> = {
   js: 'js',
@@ -359,66 +358,6 @@ function applyReplacements(code: string, replacements: Replacement[]) {
   })
 
   return result === code ? null : result
-}
-
-function collectDefineApiCollectionReplacements(
-  program: AstNode,
-  code: string,
-) {
-  const replacements: Replacement[] = []
-
-  if (program.type !== 'Program') return replacements
-
-  program.body?.forEach((statement: AstNode) => {
-    if (statement?.type !== 'ExportDefaultDeclaration') return
-
-    const declaration = statement.declaration
-    if (declaration?.type !== 'CallExpression') return
-    if (
-      declaration.callee?.type !== 'Identifier'
-      || declaration.callee.name !== DEFINE_API_COLLECTION_NAME
-    )
-      return
-
-    const collectionArg = declaration.arguments?.[0]
-    if (
-      typeof declaration.start !== 'number'
-      || typeof declaration.end !== 'number'
-      || typeof collectionArg?.start !== 'number'
-      || typeof collectionArg?.end !== 'number'
-    )
-      return
-
-    replacements.push({
-      start: declaration.start,
-      end: declaration.end,
-      value: code.slice(collectionArg.start, collectionArg.end),
-    })
-  })
-
-  return replacements
-}
-
-export async function rewriteDefineApiCollectionMacro(
-  code: string,
-  id: string,
-): Promise<string | null> {
-  // `defineApiCollection()` 不是运行正确性的前提，这个改写只是一种可选的产物优化：
-  // 把 `export default defineApiCollection({...})` 擦成 `export default {...}`。
-  const cleanId = stripQuery(id)
-  if (!isSupportedScriptFile(cleanId)) return null
-  if (!code.includes(`${DEFINE_API_COLLECTION_NAME}(`)) return null
-
-  const ast = await parseScriptAst(cleanId, code, {
-    sourceType: 'module',
-  })
-
-  const replacements = collectDefineApiCollectionReplacements(
-    ast.program as AstNode,
-    code,
-  )
-
-  return applyReplacements(code, replacements)
 }
 
 async function transformScript(code: string, id: string, offset = 0) {

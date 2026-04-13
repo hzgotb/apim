@@ -43,10 +43,11 @@ function isOutsideRoot(relativePath) {
  */
 function toCollectionFileContent(name, clientPrefix) {
   return [
-    `import { defineApiCollection } from '@heyintech/sdkr-nuxt'`,
+    `import { defineCallaCollection } from '@heyintech/sdkr-nuxt'`,
     '',
-    'export default defineApiCollection({',
+    'export default defineCallaCollection({',
     `  name: ${JSON.stringify(name)},`,
+    `  ignore: ['**/types/**', '**/*.types.*'],`,
     '  routeGroups: [',
     '    {',
     `      dir: 'runtime/server',`,

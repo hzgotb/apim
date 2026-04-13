@@ -1,7 +1,8 @@
-import { defineApiCollection } from '@heyintech/sdkr-nuxt'
+import { defineCallaCollection } from '@heyintech/sdkr-nuxt'
 
-export default defineApiCollection({
+export default defineCallaCollection({
   name: 'playground-demo-api',
+  ignore: ['**/types/**', '**/*.types.*'],
   routeGroups: [
     {
       dir: 'runtime/server',
