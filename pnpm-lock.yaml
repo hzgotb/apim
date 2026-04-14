@@ -133,7 +133,7 @@ importers:
 
   packages/nuxt:
     dependencies:
-      '@heyintech/sdkr-cli':
+      '@callajs/cli':
         specifier: workspace:*
         version: link:../cli
       '@nuxt/kit':
@@ -182,7 +182,7 @@ importers:
 
   packages/nuxt/playground:
     dependencies:
-      '@heyintech/sdkr-nuxt':
+      '@callajs/nuxt':
         specifier: workspace:*
         version: link:..
       nuxt:

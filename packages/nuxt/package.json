@@ -4,7 +4,7 @@
   "description": "Nuxt module for typed API collections and the calla compile-time macro",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hzgotb/calla",
+    "url": "https://github.com/hzgotb/callajs",
     "directory": "packages/nuxt"
   },
   "license": "MIT",

@@ -18,7 +18,7 @@ function normalizeMethod(method?: string) {
 
 export function toRouteSignature(
   handler: Pick<ComparableHandler, 'route' | 'method'>,
-) {
+): string {
   return `${normalizeMethod(handler.method)?.toUpperCase() ?? '*'} ${handler.route}`
 }
 
@@ -55,7 +55,7 @@ export function toComparableHostHandler(
 export function filterExcludedCollectionHandlers(
   handlers: CollectionHandler[],
   exclude: string[] = [],
-) {
+): CollectionHandler[] {
   const excluded = new Set(exclude)
   return handlers.filter(handler => !excluded.has(toRouteSignature(handler)))
 }
@@ -69,7 +69,7 @@ function routesConflict(a: ComparableHandler, b: ComparableHandler) {
 export function assertNoComparableRouteConflicts(
   handlers: ComparableHandler[],
   opts?: { crossSourceOnly?: boolean },
-) {
+): void {
   const visited: ComparableHandler[] = []
 
   handlers.forEach((handler) => {

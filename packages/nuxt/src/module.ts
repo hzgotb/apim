@@ -23,7 +23,7 @@ import {
 } from './conflict'
 import { resolveCollectionRefs } from './collection-ref'
 import { resolveRouteGroupIgnore } from './ignore'
-import { CALLA_MODULE_ID, gencallaTemplate } from './templates'
+import { CALLA_MODULE_ID, genCallaTemplate } from './templates'
 import { scanServerRoutes } from './scan'
 import { createCallaToUseFetchPlugin } from './transform'
 
@@ -244,7 +244,7 @@ const callaModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
       getContents: async () => {
         const handlers
           = activeCollectionHandlers ?? (await getActiveCollectionHandlers())
-        return gencallaTemplate(handlers, options.injectCallaToGlobal)
+        return genCallaTemplate(handlers, options.injectCallaToGlobal)
       },
     })
 

@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hzgotb/calla",
+    "url": "https://github.com/hzgotb/callajs",
     "directory": "packages/cli"
   },
   "type": "module",

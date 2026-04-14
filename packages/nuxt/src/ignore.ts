@@ -48,7 +48,7 @@ export function resolveRouteGroupIgnore(
   collectionIgnore?: string[],
   routeGroupIgnore?: string[],
   context?: IgnoreResolutionContext,
-) {
+): string[] {
   const normalizedCollectionIgnore = collectionIgnore ?? []
   assertValidIgnorePatterns(normalizedCollectionIgnore, 'collection', context)
 
@@ -65,7 +65,7 @@ export function resolveRouteGroupIgnore(
   return [...normalizedCollectionIgnore, ...routeGroupIgnore]
 }
 
-export function isIgnoredPath(path: string, ignore?: string[]) {
+export function isIgnoredPath(path: string, ignore?: string[]): boolean {
   let ignored = false
 
   ignore?.forEach((pattern) => {
