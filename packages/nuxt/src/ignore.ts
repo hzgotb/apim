@@ -38,7 +38,7 @@ function assertValidIgnorePatterns(
       : ' outside the first position'
 
     throw new Error(
-      `[sdkr] Invalid ${label}${position}${formatContext(context)}: `
+      `[calla] Invalid ${label}${position}${formatContext(context)}: `
       + `'!...' is only allowed as the first routeGroup ignore item.`,
     )
   })

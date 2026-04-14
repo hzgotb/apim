@@ -76,7 +76,7 @@ export async function getExportedCallaMetaFields(
   // 命中缓存时直接复用正在进行或已经完成的解析任务。
   if (callaMetaFieldCache.has(filePath)) {
     if (import.meta.dev) {
-      console.log(`[sdkr] Cached CallaMeta for ${filePath}`)
+      console.log(`[calla] Cached CallaMeta for ${filePath}`)
     }
     return callaMetaFieldCache.get(filePath) ?? []
   }
@@ -104,7 +104,7 @@ export async function getExportedCallaMetaFields(
     }
     catch (error) {
       // 解析失败时返回空数组，让上层把这个 handler 当成“没有可提取的 CallaMeta”处理。
-      console.warn(`[sdkr] Failed to parse file: ${filePath}`, error)
+      console.warn(`[calla] Failed to parse file: ${filePath}`, error)
       return []
     }
   })()

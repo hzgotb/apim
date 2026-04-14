@@ -3,7 +3,7 @@
 import { access } from 'node:fs/promises'
 
 async function loadCli() {
-  const distEntry = new URL('../dist/sdkr.mjs', import.meta.url)
+  const distEntry = new URL('../dist/calla.mjs', import.meta.url)
 
   try {
     await access(distEntry)
@@ -17,7 +17,7 @@ async function loadCli() {
       && 'code' in error
       && error.code === 'ENOENT'
     ) {
-      await import('../src/sdkr.mjs')
+      await import('../src/calla.mjs')
       return
     }
 

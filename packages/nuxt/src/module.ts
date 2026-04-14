@@ -23,7 +23,7 @@ import {
 } from './conflict'
 import { resolveCollectionRefs } from './collection-ref'
 import { resolveRouteGroupIgnore } from './ignore'
-import { CALLA_MODULE_ID, genSdkrTemplate } from './templates'
+import { CALLA_MODULE_ID, gencallaTemplate } from './templates'
 import { scanServerRoutes } from './scan'
 import { createCallaToUseFetchPlugin } from './transform'
 
@@ -89,7 +89,7 @@ async function loadCollection(
     || normalizedCollection.routeGroups.length === 0
   ) {
     throw new Error(
-      `[sdkr] Collection "${normalizedCollection.name}" must define at least one route group.`,
+      `[calla] Collection "${normalizedCollection.name}" must define at least one route group.`,
     )
   }
 
@@ -148,10 +148,10 @@ async function scanConfiguredCollections(collections: LoadedCollection[]) {
   return handlerGroups.flat()
 }
 
-const sdkrModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
+const callaModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'sdkr',
-    configKey: 'sdkr',
+    name: 'calla',
+    configKey: 'calla',
   },
   defaults: {
     collections: [],
@@ -240,11 +240,11 @@ const sdkrModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
     nuxt.options.alias[CALLA_MODULE_ID] = callaEntry
 
     addTypeTemplate({
-      filename: 'types/sdkr.d.ts',
+      filename: 'types/calla.d.ts',
       getContents: async () => {
         const handlers
           = activeCollectionHandlers ?? (await getActiveCollectionHandlers())
-        return genSdkrTemplate(handlers, options.injectCallaToGlobal)
+        return gencallaTemplate(handlers, options.injectCallaToGlobal)
       },
     })
 
@@ -260,10 +260,10 @@ const sdkrModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
   },
 })
 
-export default sdkrModule
+export default callaModule
 
 declare module 'nuxt/schema' {
   interface NuxtConfig {
-    sdkr?: ModuleOptions
+    calla?: ModuleOptions
   }
 }

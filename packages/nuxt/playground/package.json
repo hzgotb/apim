@@ -8,7 +8,7 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
-    "@heyintech/sdkr-nuxt": "workspace:*",
+    "@callajs/nuxt": "workspace:*",
     "nuxt": "catalog:"
   }
 }

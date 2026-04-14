@@ -2,14 +2,14 @@
   <main class="playground">
     <header class="hero">
       <p class="eyebrow">
-        sdkr playground
+        calla playground
       </p>
       <h1>Local interface module smoke test</h1>
       <p class="intro">
         The playground loads one collection from a directory ref and another from
         an explicit <code>.ts</code> file ref. This page uses <code>calla()</code>
         so the current build can exercise route scanning, generated payload types,
-        and both <code>sdkr.collections</code> resolution modes.
+        and both <code>calla.collections</code> resolution modes.
       </p>
     </header>
 
@@ -133,7 +133,7 @@
 </template>
 
 <script setup lang="ts">
-const profileName = ref('sdkr')
+const profileName = ref('calla')
 const echoMessage = ref('calla macro works')
 const echoRepeat = ref(2)
 const explicitTag = ref('explicit-ts-file')

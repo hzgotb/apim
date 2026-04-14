@@ -1,4 +1,4 @@
-import { defineCallaCollection } from '@heyintech/sdkr-nuxt'
+import { defineCallaCollection } from '@callajs/nuxt'
 
 export default defineCallaCollection({
   name: 'playground-demo-api',

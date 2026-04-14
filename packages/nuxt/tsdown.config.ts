@@ -20,7 +20,7 @@ export default defineConfig([
   },
   {
     entry: {
-      sdkr: '../cli/src/sdkr.mjs',
+      calla: '../cli/src/calla.mjs',
     },
     format: 'esm',
     dts: false,

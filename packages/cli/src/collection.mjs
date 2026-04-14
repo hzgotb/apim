@@ -36,14 +36,14 @@ function isOutsideRoot(relativePath) {
 
 /**
  * Generates the contents of a collection.ts configuration file.
- * This file exports an API collection definition for the SDKR tool.
+ * This file exports an API collection definition for the Calla tool.
  * @param {string} name - The name of the collection (typically derived from directory name)
  * @param {string} clientPrefix - The prefix to use for client-side routes (e.g., '/api')
  * @returns {string} - TypeScript source code for the collection file
  */
 function toCollectionFileContent(name, clientPrefix) {
   return [
-    `import { defineCallaCollection } from '@heyintech/sdkr-nuxt'`,
+    `import { defineCallaCollection } from '@callajs/nuxt'`,
     '',
     'export default defineCallaCollection({',
     `  name: ${JSON.stringify(name)},`,
@@ -79,7 +79,7 @@ function toExampleHandlerContent() {
     '',
     'export default defineEventHandler((event) => {',
     '  const query = getQuery(event)',
-    `  const name = typeof query.name === 'string' ? query.name : 'sdkr'`,
+    `  const name = typeof query.name === 'string' ? query.name : 'calla'`,
     '',
     '  return {',
     '    message: `Hello, ${name}!`,',
@@ -102,12 +102,12 @@ export function deriveCollectionName(targetPath) {
   const name = basename(normalizedPath)
 
   if (!name || name === '.' || name === sep) {
-    throw new Error('[sdkr] Target path must end with a directory name.')
+    throw new Error('[calla] Target path must end with a directory name.')
   }
 
   if (TYPESCRIPT_FILE_RE.test(name)) {
     throw new Error(
-      '[sdkr] Target path must be a directory path, not a TypeScript file path.',
+      '[calla] Target path must be a directory path, not a TypeScript file path.',
     )
   }
 
@@ -130,13 +130,13 @@ export function resolveTargetDirectory(targetPath, rootDir = process.cwd()) {
 
   if (!trimmedTargetPath) {
     throw new Error(
-      '[sdkr] Missing target path. Pass a project-relative directory path.',
+      '[calla] Missing target path. Pass a project-relative directory path.',
     )
   }
 
   if (isAbsolute(trimmedTargetPath)) {
     throw new Error(
-      '[sdkr] Target path must be relative to the Nuxt app root.',
+      '[calla] Target path must be relative to the Nuxt app root.',
     )
   }
 
@@ -144,7 +144,7 @@ export function resolveTargetDirectory(targetPath, rootDir = process.cwd()) {
   const relativeTarget = relative(rootDir, resolvedTarget)
 
   if (isOutsideRoot(relativeTarget)) {
-    throw new Error('[sdkr] Target path must stay inside the Nuxt app root.')
+    throw new Error('[calla] Target path must stay inside the Nuxt app root.')
   }
 
   return {
@@ -169,14 +169,14 @@ export async function assertTargetDirectoryIsWritable(targetDir, targetLabel) {
 
     if (!stats.isDirectory()) {
       throw new Error(
-        `[sdkr] Target "${targetLabel}" already exists and is not a directory.`,
+        `[calla] Target "${targetLabel}" already exists and is not a directory.`,
       )
     }
 
     const entries = await readdir(targetDir)
     if (entries.length > 0) {
       throw new Error(
-        `[sdkr] Target "${targetLabel}" already exists and is not empty.`,
+        `[calla] Target "${targetLabel}" already exists and is not empty.`,
       )
     }
   }

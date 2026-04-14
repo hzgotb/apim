@@ -1,14 +1,14 @@
 {
-  "name": "@heyintech/sdkr-cli",
-  "version": "0.0.5",
+  "name": "@callajs/cli",
+  "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/heyintech/sdkr",
+    "url": "https://github.com/hzgotb/calla",
     "directory": "packages/cli"
   },
   "type": "module",
   "bin": {
-    "sdkr": "./bin/sdkr.mjs"
+    "calla": "./bin/calla.mjs"
   },
   "files": [
     "bin",

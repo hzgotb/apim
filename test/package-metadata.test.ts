@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 const expectedRepositoryBase = {
   type: 'git',
-  url: 'https://github.com/heyintech/sdkr',
+  url: 'https://github.com/hzgotb/callajs',
 }
 
 async function readPackageJson(path: string) {

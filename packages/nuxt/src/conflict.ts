@@ -90,7 +90,7 @@ export function assertNoComparableRouteConflicts(
       : normalizeMethod(handler.method)?.toUpperCase() ?? '*'
 
     throw new Error(
-      `[sdkr] Route conflict on ${methodLabel} ${handler.route}: `
+      `[calla] Route conflict on ${methodLabel} ${handler.route}: `
       + `${conflict.ownerLabel} (${conflict.handler}) conflicts with `
       + `${handler.ownerLabel} (${handler.handler}).`,
     )

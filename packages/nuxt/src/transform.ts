@@ -384,7 +384,7 @@ function getVueScriptId(id: string, lang?: string) {
 
 export function createCallaToUseFetchPlugin(): Plugin {
   return {
-    name: 'sdkr:calla-to-use-fetch',
+    name: 'calla:calla-to-use-fetch',
     enforce: 'pre',
     async transform(code, id) {
       const cleanId = stripQuery(id)
@@ -430,7 +430,7 @@ export function createCallaToUseFetchPlugin(): Plugin {
       }
       catch (error) {
         this.warn(
-          `[sdkr] Failed to rewrite calla() in ${cleanId}: ${error instanceof Error ? error.message : String(error)}`,
+          `[calla] Failed to rewrite calla() in ${cleanId}: ${error instanceof Error ? error.message : String(error)}`,
         )
         return null
       }

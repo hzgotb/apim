@@ -12,7 +12,7 @@ export interface CallaMeta {
 
 export default defineEventHandler((event: H3Event) => {
   const query = getQuery(event)
-  const name = typeof query.name === 'string' ? query.name : 'sdkr'
+  const name = typeof query.name === 'string' ? query.name : 'calla'
 
   return {
     message: `Hello, ${name}!`,

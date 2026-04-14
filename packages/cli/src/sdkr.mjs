@@ -2,7 +2,7 @@ import { scaffoldCollection } from './collection.mjs'
 
 function printUsage() {
   console.log(`Usage:
-  sdkr collection <targetPath> [--template minimal|example]
+  calla collection <targetPath> [--template minimal|example]
 
 Commands:
   collection   Generate an API collection scaffold in a project-relative directory
@@ -36,7 +36,7 @@ function parseCollectionArgs(argv) {
     if (arg === '--template') {
       const value = argv[index + 1]
       if (!value) {
-        throw new Error('[sdkr] Missing value for "--template".')
+        throw new Error('[calla] Missing value for "--template".')
       }
       template = value
       index += 1
@@ -49,18 +49,18 @@ function parseCollectionArgs(argv) {
     }
 
     if (arg.startsWith('-')) {
-      throw new Error(`[sdkr] Unknown option "${arg}".`)
+      throw new Error(`[calla] Unknown option "${arg}".`)
     }
 
     if (targetPath) {
-      throw new Error('[sdkr] Only one target path is supported.')
+      throw new Error('[calla] Only one target path is supported.')
     }
 
     targetPath = arg
   }
 
   if (template !== 'minimal' && template !== 'example') {
-    throw new Error('[sdkr] "--template" must be "minimal" or "example".')
+    throw new Error('[calla] "--template" must be "minimal" or "example".')
   }
 
   return {
@@ -79,7 +79,7 @@ async function main() {
   }
 
   if (command !== 'collection') {
-    throw new Error(`[sdkr] Unknown command "${command}".`)
+    throw new Error(`[calla] Unknown command "${command}".`)
   }
 
   const args = parseCollectionArgs(rest)
@@ -90,7 +90,7 @@ async function main() {
 
   if (!args.targetPath) {
     throw new Error(
-      '[sdkr] Missing target path. Example: "sdkr collection modules/demo-api".',
+      '[calla] Missing target path. Example: "calla collection modules/demo-api".',
     )
   }
 
@@ -100,16 +100,16 @@ async function main() {
   })
 
   console.log(
-    `[sdkr] Using collection name "${result.name}" derived from the last segment of "${result.targetPath}".`,
+    `[calla] Using collection name "${result.name}" derived from the last segment of "${result.targetPath}".`,
   )
-  console.log(`[sdkr] Using clientPrefix "${result.clientPrefix}".`)
-  console.log(`[sdkr] Template: ${result.template}.`)
-  console.log('[sdkr] Created files:')
+  console.log(`[calla] Using clientPrefix "${result.clientPrefix}".`)
+  console.log(`[calla] Template: ${result.template}.`)
+  console.log('[calla] Created files:')
   result.createdFiles.forEach((file) => {
     console.log(`  ${file}`)
   })
   console.log(
-    `[sdkr] Add "${result.targetPath}" to "sdkr.collections" in your nuxt.config when you want this collection to be loaded.`,
+    `[calla] Add "${result.targetPath}" to "calla.collections" in your nuxt.config when you want this collection to be loaded.`,
   )
 }
 

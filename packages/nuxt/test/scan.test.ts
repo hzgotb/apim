@@ -7,7 +7,7 @@ import { scanServerRoutes } from '../src/scan'
 const tempRoots: string[] = []
 
 async function createFixture(files: Record<string, string>) {
-  const root = await mkdtemp(join(tmpdir(), 'sdkr-nuxt-scan-'))
+  const root = await mkdtemp(join(tmpdir(), 'calla-nuxt-scan-'))
   tempRoots.push(root)
 
   await Promise.all(

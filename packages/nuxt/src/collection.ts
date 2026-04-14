@@ -11,7 +11,7 @@ export interface CallaCollection {
   ignore?: string[]
 }
 
-export const CALLA_COLLECTION_KEY = '@heyintech/sdkr/calla-collection'
+export const CALLA_COLLECTION_KEY = '@hzgotb/callajs-collection'
 
 export interface CallaCollectionEntry<T extends CallaCollection = CallaCollection> {
   key: typeof CALLA_COLLECTION_KEY
@@ -41,7 +41,7 @@ export function parseCallaCollectionEntry(
     || !isObjectRecord(entry.options)
   ) {
     throw new Error(
-      `[sdkr] Collection "${collectionPath}" must export a default defineCallaCollection({...}) entry.`,
+      `[calla] Collection "${collectionPath}" must export a default defineCallaCollection({...}) entry.`,
     )
   }
 

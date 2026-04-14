@@ -18,7 +18,7 @@ async function loadResolveRouteGroupIgnore() {
 }
 
 async function createFixture(files: Record<string, string>) {
-  const root = await mkdtemp(join(tmpdir(), 'sdkr-nuxt-ignore-'))
+  const root = await mkdtemp(join(tmpdir(), 'calla-nuxt-ignore-'))
   tempRoots.push(root)
 
   await Promise.all(

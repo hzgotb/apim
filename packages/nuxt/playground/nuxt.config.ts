@@ -1,8 +1,8 @@
 export default defineNuxtConfig({
-  modules: ['@heyintech/sdkr-nuxt'],
+  modules: ['@callajs/nuxt'],
   devtools: { enabled: true },
   compatibilityDate: 'latest',
-  sdkr: {
+  calla: {
     injectCallaToGlobal: true,
     collections: [
       'modules/demo-api',

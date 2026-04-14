@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { genSdkrTemplate } from '../src/templates'
+import { genCallaTemplate } from '../src/templates'
 import {
   assertNoComparableRouteConflicts,
   filterExcludedCollectionHandlers,
@@ -157,7 +157,7 @@ describe('exclude filtering', () => {
       ['GET /api/profile'],
     )
 
-    await expect(genSdkrTemplate(handlers, false)).resolves.not.toContain(
+    await expect(genCallaTemplate(handlers, false)).resolves.not.toContain(
       "'/api/profile'",
     )
   })

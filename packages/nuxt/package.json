@@ -1,16 +1,16 @@
 {
-  "name": "@heyintech/sdkr-nuxt",
-  "version": "0.0.5",
+  "name": "@callajs/nuxt",
+  "version": "0.0.1",
   "description": "Nuxt module for typed API collections and the calla compile-time macro",
   "repository": {
     "type": "git",
-    "url": "https://github.com/heyintech/sdkr",
+    "url": "https://github.com/hzgotb/calla",
     "directory": "packages/nuxt"
   },
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@heyintech/sdkr-cli": "workspace:*",
+    "@callajs/cli": "workspace:*",
     "@nuxt/kit": "catalog:",
     "@vue/compiler-sfc": "catalog:",
     "jiti": "catalog:",

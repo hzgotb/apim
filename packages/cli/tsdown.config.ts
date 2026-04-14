@@ -3,7 +3,7 @@ import { defineConfig } from 'tsdown'
 export default defineConfig({
   entry: {
     index: './src/index.mjs',
-    sdkr: './src/sdkr.mjs',
+    calla: './src/calla.mjs',
   },
   format: 'esm',
   dts: false,

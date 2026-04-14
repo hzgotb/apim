@@ -14,7 +14,7 @@ describe('buildCollectionFiles', () => {
       `ignore: ['**/types/**', '**/*.types.*']`,
     )
     expect(collectionFile?.contents).toContain(
-      `import { defineCallaCollection } from '@heyintech/sdkr-nuxt'`,
+      `import { defineCallaCollection } from '@callajs/nuxt'`,
     )
     expect(collectionFile?.contents).toContain('export default defineCallaCollection({')
   })
