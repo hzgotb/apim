@@ -1,6 +1,6 @@
-import { defineCallaCollection } from '../../../../../src/collection'
+import { defineApiModule } from '../../../../../src/collection/index'
 
-export default defineCallaCollection({
+export default defineApiModule({
   name: 'demo-root',
   routeGroups: [
     {

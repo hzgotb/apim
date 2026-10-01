@@ -2,12 +2,12 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { afterEach, describe, expect, it } from 'vitest'
 import { basename, dirname, join } from 'pathe'
-import { scanServerRoutes } from '../src/scan'
+import { scanServerRoutes } from '../src/route/scan'
 
 const tempRoots: string[] = []
 
 async function createFixture(files: Record<string, string>) {
-  const root = await mkdtemp(join(tmpdir(), 'calla-nuxt-scan-'))
+  const root = await mkdtemp(join(tmpdir(), 'apim-nuxt-scan-'))
   tempRoots.push(root)
 
   await Promise.all(

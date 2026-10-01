@@ -12,6 +12,12 @@ export interface CollectionHandler extends ScannedServerRoute {
   collectionName: string
 }
 
+export interface HostHandler {
+  handler: string
+  route?: string
+  method?: string
+}
+
 function normalizeMethod(method?: string) {
   return method?.toLowerCase()
 }
@@ -35,7 +41,7 @@ export function toComparableCollectionHandler(
 }
 
 export function toComparableHostHandler(
-  handler: ScannedServerRoute,
+  handler: HostHandler,
 ): ComparableHandler {
   const ownerLabel = handler.handler.includes('/server/api/')
     ? 'host server/api'
@@ -47,7 +53,7 @@ export function toComparableHostHandler(
     source: 'host',
     ownerLabel,
     handler: handler.handler,
-    route: handler.route,
+    route: handler.route ?? '',
     method: normalizeMethod(handler.method),
   }
 }
@@ -90,7 +96,7 @@ export function assertNoComparableRouteConflicts(
       : normalizeMethod(handler.method)?.toUpperCase() ?? '*'
 
     throw new Error(
-      `[calla] Route conflict on ${methodLabel} ${handler.route}: `
+      `[apim] Route conflict on ${methodLabel} ${handler.route}: `
       + `${conflict.ownerLabel} (${conflict.handler}) conflicts with `
       + `${handler.ownerLabel} (${handler.handler}).`,
     )

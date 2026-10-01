@@ -60,4 +60,4 @@ jobs:
           EOF
 
       - name: Publish nuxt + cli packages with pnpm workspaces
-        run: pnpm -r --filter "@callajs/nuxt" --filter "@callajs/cli" publish --access public --no-git-checks
+        run: pnpm -r --filter "@hzgotb/apim-nuxt" --filter "@hzgotb/apim-cli" publish --access public --no-git-checks

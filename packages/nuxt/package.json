@@ -1,16 +1,16 @@
 {
-  "name": "@callajs/nuxt",
+  "name": "@hzgotb/apim-nuxt",
   "version": "0.0.1",
-  "description": "Nuxt module for typed API collections and the calla compile-time macro",
+  "description": "Nuxt module for typed API collections and the apim compile-time macro",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hzgotb/callajs",
+    "url": "https://github.com/hzgotb/apim",
     "directory": "packages/nuxt"
   },
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@callajs/cli": "workspace:*",
+    "@hzgotb/apim-cli": "workspace:*",
     "@nuxt/kit": "catalog:",
     "@vue/compiler-sfc": "catalog:",
     "jiti": "catalog:",
@@ -24,9 +24,9 @@
       "types": "./dist/module.d.ts",
       "import": "./dist/module.mjs"
     },
-    "./calla": {
-      "types": "./dist/calla.d.ts",
-      "import": "./dist/calla.mjs"
+    "./apim": {
+      "types": "./dist/apim.d.ts",
+      "import": "./dist/apim.mjs"
     }
   },
   "main": "./dist/module.mjs",
@@ -43,8 +43,9 @@
   },
   "devDependencies": {
     "@nuxt/schema": "catalog:",
+    "@nuxt/nitro-server": "catalog:",
     "h3": "catalog:",
-    "nitro": "catalog:",
+    "nitropack": "catalog:",
     "nuxt": "catalog:",
     "ofetch": "catalog:",
     "vite": "catalog:",

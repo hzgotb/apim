@@ -1,32 +1,34 @@
 packages:
+  - docs
   - packages/*
   - packages/nuxt/playground
 
 catalog:
-  "@nuxt/kit": ^4.4.2
-  "@nuxt/devtools": ^3.2.4
-  "@nuxt/eslint-config": ^1.15.2
-  "@nuxt/schema": ^4.4.2
-  "@nuxt/test-utils": ^4.0.0
+  "@nuxt/kit": ^4.5.2
+  "@nuxt/nitro-server": ^4.5.2
+  "@nuxt/devtools": ^3.4.2
+  "@nuxt/eslint-config": ^1.17.0
+  "@nuxt/schema": ^4.5.2
+  "@nuxt/test-utils": ^4.3.2
   "@types/node": latest
-  "@vue/compiler-sfc": ^3.5.31
+  "@vue/compiler-sfc": ^3.5.43
   changelogen: ^0.6.2
-  eslint: ^10.1.0
-  h3: 2.0.1-rc.20
-  nuxt: ^4.4.2
-  oxc-parser: ^0.121.0
+  eslint: ^10.11.0
+  h3: 2.0.1-rc.32
+  nuxt: ^4.5.2
+  oxc-parser: ^0.152.0
   pathe: ^2.0.3
-  tinyglobby: ^0.2.15
+  tinyglobby: ^0.2.17
   tsdown: latest
-  typescript: ~6.0.2
-  ufo: ^1.6.3
-  vitest: ^4.1.2
-  vue-tsc: ^3.2.6
-  vite: ^8.0.3
-  vue: ^3.5.30
-  bumpp: ^11.0.1
-  jiti: ^2.6.1
-  nitro: 3.0.260311-beta
+  typescript: ~6.0.3
+  ufo: ^1.6.4
+  vitest: ^5.0.3
+  vue-tsc: ^3.3.11
+  vite: ^8.3.1
+  vue: ^3.5.43
+  bumpp: ^12.3.0
+  jiti: ^2.7.0
+  nitropack: ^2.13.4
   ofetch: ^1.5.1
 
 allowBuilds:
@@ -35,4 +37,9 @@ allowBuilds:
   unrs-resolver: true
 
 overrides:
-  vite: ^8.0.3
+  vite: ^8.3.1
+
+minimumReleaseAgeExclude:
+  - "@vitest/mocker@5.0.3"
+  - "@vitest/spy@5.0.3"
+  - vitest@5.0.3

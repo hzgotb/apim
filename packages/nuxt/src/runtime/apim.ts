@@ -3,7 +3,7 @@ import type { HTTPMethod } from 'h3'
 import type {
   AvailableRouterMethod as _AvailableRouterMethod,
   NitroFetchRequest,
-} from 'nitro/types'
+} from 'nitropack/types'
 import type {
   ResponseType as _ResponseType,
   FetchError,
@@ -52,7 +52,7 @@ type ComputedFetchOptions<
 
 type RouterMethod = Lowercase<HTTPMethod>
 type RouteKey = Extract<keyof InternalApiPayload, string>
-type CallaField = 'body' | 'query' | 'res'
+type ApimField = 'body' | 'query' | 'res'
 type DefaultRequestSchema = { body?: never, query?: never }
 type NormalizeMethod<M extends string> = Lowercase<M> & RouterMethod
 type MatchedRoute<Route extends string> = Extract<Route, RouteKey>
@@ -85,7 +85,7 @@ type RouteSchema<Route extends string, Method extends RouterMethod, Default>
     : Default
 type TypedRouteField<
   Route extends string,
-  Field extends CallaField,
+  Field extends ApimField,
   Method extends RouterMethod,
   Default = never,
 >
@@ -112,24 +112,24 @@ type FetchPayload<
 > = ReqT extends string
   ? TypedRequestSchema<ReqT, NormalizeMethod<Extract<M, string>>>
   : DefaultRequestSchema
-type DefaultCallaMethod<ReqT extends NitroFetchRequest>
+type DefaultApimMethod<ReqT extends NitroFetchRequest>
   = 'get' extends AvailableRouterMethod<ReqT>
     ? 'get'
     : AvailableRouterMethod<ReqT>
 
-export type CallaQuery<
+export type ApimQuery<
   Route extends string,
   Method extends RouterMethod = DefaultRouteMethod<Route, 'get'>,
 > = TypedRouteField<Route, 'query', Method>
 
-export type CallaBody<
+export type ApimBody<
   Route extends string,
   Method extends RouterMethod = DefaultRouteMethod<Route, 'post'>,
 > = TypedRouteField<Route, 'body', Method>
 
-export type CallaRes<
+export type ApimRes<
   ReqT extends NitroFetchRequest,
-  Method extends AvailableRouterMethod<ReqT> = DefaultCallaMethod<ReqT>,
+  Method extends AvailableRouterMethod<ReqT> = DefaultApimMethod<ReqT>,
 > = ReqT extends string
   ? TypedRouteField<
     ReqT,
@@ -139,7 +139,7 @@ export type CallaRes<
   >
   : FetchResult<ReqT, Method>
 
-export interface CallaOpts<
+export interface ApimOpts<
   ResT,
   DataT = ResT,
   PickKeys extends KeysOf<DataT> = KeysOf<DataT>,
@@ -155,7 +155,7 @@ export interface CallaOpts<
   watch?: MultiWatchSources | false
 }
 
-export function calla<
+export function apim<
   ResT = void,
   ErrorT = FetchError,
   ReqT extends NitroFetchRequest = NitroFetchRequest,
@@ -164,16 +164,16 @@ export function calla<
       ? 'get'
       : AvailableRouterMethod<ReqT>
     : AvailableRouterMethod<ReqT>,
-  _ResT = ResT extends void ? CallaRes<ReqT, Method> : ResT,
+  _ResT = ResT extends void ? ApimRes<ReqT, Method> : ResT,
   DataT = _ResT,
   PickKeys extends KeysOf<DataT> = KeysOf<DataT>,
   DefaultT = undefined,
 >(
   request: Ref<ReqT> | ReqT | (() => ReqT),
   opts?: ComputedOptions<FetchPayload<ReqT, Method>>
-    & CallaOpts<_ResT, DataT, PickKeys, DefaultT, ReqT, Method>,
+    & ApimOpts<_ResT, DataT, PickKeys, DefaultT, ReqT, Method>,
 ): AsyncData<PickFrom<DataT, PickKeys> | DefaultT, ErrorT | undefined>
-export function calla<
+export function apim<
   ResT = void,
   ErrorT = FetchError,
   ReqT extends NitroFetchRequest = NitroFetchRequest,
@@ -182,13 +182,13 @@ export function calla<
       ? 'get'
       : AvailableRouterMethod<ReqT>
     : AvailableRouterMethod<ReqT>,
-  _ResT = ResT extends void ? CallaRes<ReqT, Method> : ResT,
+  _ResT = ResT extends void ? ApimRes<ReqT, Method> : ResT,
   DataT = _ResT,
   PickKeys extends KeysOf<DataT> = KeysOf<DataT>,
   DefaultT = DataT,
 >(
   request: Ref<ReqT> | ReqT | (() => ReqT),
   opts?: ComputedOptions<FetchPayload<ReqT, Method>>
-    & CallaOpts<_ResT, DataT, PickKeys, DefaultT, ReqT, Method>,
+    & ApimOpts<_ResT, DataT, PickKeys, DefaultT, ReqT, Method>,
 ): AsyncData<PickFrom<DataT, PickKeys> | DefaultT, ErrorT | undefined>
-export function calla(): any {}
+export function apim(): any {}

@@ -32,7 +32,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run lint/test/build
-        run: pnpm test && pnpm --filter "@callajs/cli" build && pnpm --filter "@callajs/nuxt" build
+        run: pnpm test && pnpm --filter "@hzgotb/apim-cli" build && pnpm --filter "@hzgotb/apim-nuxt" build
 
       - name: Bump version using bumpp (patch) for nuxt + cli packages
         id: bump

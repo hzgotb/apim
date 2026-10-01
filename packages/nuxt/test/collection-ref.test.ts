@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { resolveCollectionRefs } from '../src/collection-ref'
+import { resolveCollectionRefs } from '../src/collection/resolve'
 
 const playgroundRoot = fileURLToPath(new URL('../playground', import.meta.url))
 const demoCollectionPath = fileURLToPath(

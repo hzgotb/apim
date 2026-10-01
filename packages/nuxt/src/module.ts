@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { createJiti } from 'jiti'
 import { dirname, extname, isAbsolute, resolve } from 'pathe'
+import '@nuxt/nitro-server/augments'
 import {
   addTypeTemplate,
   addVitePlugin,
@@ -10,34 +11,35 @@ import {
 } from '@nuxt/kit'
 import type { NuxtModule } from '@nuxt/schema'
 import {
-  parseCallaCollectionEntry,
-  type CallaCollection,
+  parseApiModuleEntry,
+  type ApimCollection,
   type ApiRouteGroup,
-} from './collection'
+} from './collection/index'
 import {
   assertNoComparableRouteConflicts,
   filterExcludedCollectionHandlers,
   toComparableHostHandler,
   toComparableCollectionHandler,
   type CollectionHandler,
-} from './conflict'
-import { resolveCollectionRefs } from './collection-ref'
-import { resolveRouteGroupIgnore } from './ignore'
-import { CALLA_MODULE_ID, genCallaTemplate } from './templates'
-import { scanServerRoutes } from './scan'
-import { createCallaToUseFetchPlugin } from './transform'
+  type HostHandler,
+} from './route/conflict'
+import { resolveCollectionRefs } from './collection/resolve'
+import { resolveRouteGroupIgnore } from './route/ignore'
+import { APIM_MODULE_ID, genApimTemplate } from './generator/templates'
+import { scanServerRoutes } from './route/scan'
+import { createApimToUseFetchPlugin } from './transform/use-fetch'
 
-export * from './collection'
+export * from './collection/index'
 
 const jiti = createJiti(import.meta.url)
 
 export interface ModuleOptions {
   collections: string[]
-  injectCallaToGlobal: boolean
-  exclude: string[]
+  injectApimToGlobal: boolean
+  exclude?: string[]
 }
 
-interface LoadedCollection extends CallaCollection {
+interface LoadedCollection extends ApimCollection {
   moduleRoot: string
   serverRoot: string
   storesRoot: string
@@ -79,7 +81,7 @@ async function loadCollection(
   const importedCollection = await jiti.import(collectionPath, {
     default: true,
   })
-  const normalizedCollection = parseCallaCollectionEntry(
+  const normalizedCollection = parseApiModuleEntry(
     importedCollection,
     collectionPath,
   )
@@ -89,7 +91,7 @@ async function loadCollection(
     || normalizedCollection.routeGroups.length === 0
   ) {
     throw new Error(
-      `[calla] Collection "${normalizedCollection.name}" must define at least one route group.`,
+      `[apim] Collection "${normalizedCollection.name}" must define at least one route group.`,
     )
   }
 
@@ -148,19 +150,19 @@ async function scanConfiguredCollections(collections: LoadedCollection[]) {
   return handlerGroups.flat()
 }
 
-const callaModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
+const apimModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'calla',
-    configKey: 'calla',
+    name: 'apim',
+    configKey: 'apim',
   },
   defaults: {
     collections: [],
-    injectCallaToGlobal: true,
+    injectApimToGlobal: true,
     exclude: [],
   },
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
-    const callaEntry = resolver.resolve('./calla')
+    const apimEntry = resolver.resolve('./apim')
     const collectionRefs = await resolveCollectionRefs(
       options.collections,
       nuxt.options.rootDir,
@@ -198,7 +200,15 @@ const callaModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
         ...(nuxt.options.serverHandlers ?? []),
         ...(nitroConfig.handlers ?? []),
       ]
-        .filter(handler => !collectionHandlerPaths.has(handler.handler))
+        .flatMap((handler): HostHandler[] => {
+          if (
+            typeof handler?.handler !== 'string'
+            || collectionHandlerPaths.has(handler.handler)
+          ) {
+            return []
+          }
+          return [handler as HostHandler]
+        })
         .map(toComparableHostHandler)
       const collectionHandlers = activeCollectionHandlers.map(
         toComparableCollectionHandler,
@@ -225,7 +235,15 @@ const callaModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
         activeCollectionHandlers.map(handler => handler.handler),
       )
       const hostHandlers = nitro.scannedHandlers
-        .filter(handler => !collectionHandlerPaths.has(handler.handler))
+        .flatMap((handler): HostHandler[] => {
+          if (
+            typeof handler.handler !== 'string'
+            || collectionHandlerPaths.has(handler.handler)
+          ) {
+            return []
+          }
+          return [handler as HostHandler]
+        })
         .map(toComparableHostHandler)
       const collectionHandlers = activeCollectionHandlers.map(
         toComparableCollectionHandler,
@@ -237,14 +255,14 @@ const callaModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
       ], { crossSourceOnly: true })
     })
 
-    nuxt.options.alias[CALLA_MODULE_ID] = callaEntry
+    nuxt.options.alias[APIM_MODULE_ID] = apimEntry
 
     addTypeTemplate({
-      filename: 'types/calla.d.ts',
+      filename: 'types/apim.d.ts',
       getContents: async () => {
         const handlers
           = activeCollectionHandlers ?? (await getActiveCollectionHandlers())
-        return genCallaTemplate(handlers, options.injectCallaToGlobal)
+        return genApimTemplate(handlers, options.injectApimToGlobal)
       },
     })
 
@@ -256,14 +274,14 @@ const callaModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
       })
     })
 
-    addVitePlugin(() => createCallaToUseFetchPlugin(), { prepend: true })
+    addVitePlugin(() => createApimToUseFetchPlugin(), { prepend: true })
   },
 })
 
-export default callaModule
+export default apimModule
 
 declare module 'nuxt/schema' {
   interface NuxtConfig {
-    calla?: ModuleOptions
+    apim?: ModuleOptions
   }
 }

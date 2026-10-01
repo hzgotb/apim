@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
-  CALLA_COLLECTION_KEY,
-  defineCallaCollection,
-  parseCallaCollectionEntry,
-} from '../src/collection'
+  APIM_COLLECTION_KEY,
+  defineApiModule,
+  parseApiModuleEntry,
+} from '../src/collection/index'
 
-describe('defineCallaCollection entry', () => {
+describe('defineApiModule entry', () => {
   it('wraps collection options in a keyed runtime entry', () => {
     const options = {
       name: 'demo',
@@ -17,8 +17,8 @@ describe('defineCallaCollection entry', () => {
       ],
     }
 
-    expect(defineCallaCollection(options)).toEqual({
-      key: CALLA_COLLECTION_KEY,
+    expect(defineApiModule(options)).toEqual({
+      key: APIM_COLLECTION_KEY,
       options,
     })
   })
@@ -35,8 +35,8 @@ describe('defineCallaCollection entry', () => {
     }
 
     expect(
-      parseCallaCollectionEntry(
-        defineCallaCollection(options),
+      parseApiModuleEntry(
+        defineApiModule(options),
         '/virtual/demo.collection.ts',
       ),
     ).toEqual(options)
@@ -44,13 +44,13 @@ describe('defineCallaCollection entry', () => {
 
   it('rejects plain object exports that are not keyed collection entries', () => {
     expect(() =>
-      parseCallaCollectionEntry(
+      parseApiModuleEntry(
         {
           name: 'demo',
           routeGroups: [],
         },
         '/virtual/demo.collection.ts',
       ),
-    ).toThrow(/defineCallaCollection/)
+    ).toThrow(/defineApiModule/)
   })
 })

@@ -1,6 +1,6 @@
 import { getQuery, type H3Event } from 'h3'
 
-export interface CallaMeta {
+export interface ApiModuleMeta {
   query: {
     tag?: string
   }
@@ -19,5 +19,5 @@ export default defineEventHandler((event: H3Event) => {
     message: `Loaded via explicit collection file: ${tag}`,
     entry: 'packages/nuxt/playground/modules/demo-explicit/demo-module.ts',
     route: '/demo-explicit/status',
-  } satisfies CallaMeta['res']
+  } satisfies ApiModuleMeta['res']
 })

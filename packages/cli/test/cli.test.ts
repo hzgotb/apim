@@ -7,12 +7,12 @@ import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 
 const execFileAsync = promisify(execFile)
-const cliPath = fileURLToPath(new URL('../src/calla.mjs', import.meta.url))
+const cliPath = fileURLToPath(new URL('../src/apim.mjs', import.meta.url))
 const packageJsonPath = fileURLToPath(new URL('../package.json', import.meta.url))
 const tempDirs: string[] = []
 
 async function createTempRoot() {
-  const root = await mkdtemp(join(tmpdir(), 'calla-cli-'))
+  const root = await mkdtemp(join(tmpdir(), 'apim-cli-'))
   tempDirs.push(root)
   return root
 }
@@ -23,12 +23,12 @@ afterEach(async () => {
   )
 })
 
-describe('calla cli', () => {
+describe('apim cli', () => {
   it('uses a stable bin entry that exists before build', async () => {
     const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'))
 
     expect(packageJson.bin).toEqual({
-      calla: './bin/calla.mjs',
+      apim: './bin/apim.mjs',
     })
     expect(packageJson.files).toContain('bin')
   })
@@ -82,7 +82,7 @@ describe('calla cli', () => {
       'utf8',
     )
 
-    expect(handler).toContain('export interface CallaMeta')
+    expect(handler).toContain('export interface ApiModuleMeta')
     expect(handler).toContain('message: `Hello, ${name}!`')
   })
 

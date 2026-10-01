@@ -38,7 +38,7 @@ function assertValidIgnorePatterns(
       : ' outside the first position'
 
     throw new Error(
-      `[calla] Invalid ${label}${position}${formatContext(context)}: `
+      `[apim] Invalid ${label}${position}${formatContext(context)}: `
       + `'!...' is only allowed as the first routeGroup ignore item.`,
     )
   })

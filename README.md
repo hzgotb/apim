@@ -1,20 +1,20 @@
-# `@callajs/nuxt`
+# `@hzgotb/apim-nuxt`
 
-Nuxt 4 module for file-based API collections, typed `calla(...)` requests, and `CallaMeta`-driven request/response inference.
+Nuxt 4 module for file-based API collections, typed `apim(...)` requests, and `ApiModuleMeta`-driven request/response inference.
 
 ## 它提供什么
 
-- 用 `defineCallaCollection(...)` 显式声明一组 API collection
+- 用 `defineApiModule(...)` 显式声明一组 API collection
 - 扫描 collection 下的 `runtime/server` handlers，并挂到 Nuxt/Nitro
-- 从 handler 里导出的 `CallaMeta` 生成 `calla(...)` 的请求/响应类型
-- 把 `calla(...)` 在编译期改写成 `useFetch(...)`
+- 从 handler 里导出的 `ApiModuleMeta` 生成 `apim(...)` 的请求/响应类型
+- 把 `apim(...)` 在编译期改写成 `useFetch(...)`
 - 检查 collection 之间、以及宿主 `server/api` / `server/routes` 和 collection 之间的路由冲突
-- 支持用 `calla.exclude` 按最终路由签名排除第三方 collection handler
+- 支持用 `apim.exclude` 按最终路由签名排除第三方 collection handler
 
 ## 安装
 
 ```bash
-pnpm add @callajs/nuxt
+pnpm add @hzgotb/apim-nuxt
 ```
 
 当前 peer dependency:
@@ -27,24 +27,24 @@ pnpm add @callajs/nuxt
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@callajs/nuxt'],
-  calla: {
+  modules: ['@hzgotb/apim-nuxt'],
+  apim: {
     collections: ['modules/demo-api'],
-    injectCallaToGlobal: true,
+    injectApimToGlobal: true,
   },
 })
 ```
 
 ### 2. 创建 collection 入口
 
-`calla.collections` 默认按 Nuxt 应用的 `rootDir` 解析。目录式路径会自动补成 `/collection.ts`。
+`apim.collections` 默认按 Nuxt 应用的 `rootDir` 解析。目录式路径会自动补成 `/collection.ts`。
 
 例如 `modules/demo-api` 会解析到 `modules/demo-api/collection.ts`：
 
 ```ts
-import { defineCallaCollection } from '@callajs/nuxt'
+import { defineApiModule } from '@hzgotb/apim-nuxt'
 
-export default defineCallaCollection({
+export default defineApiModule({
   name: 'demo-api',
   ignore: ['**/types/**', '**/*.types.*'],
   routeGroups: [
@@ -58,7 +58,7 @@ export default defineCallaCollection({
 
 注意：
 
-- collection 默认导出必须是 `defineCallaCollection({...})`
+- collection 默认导出必须是 `defineApiModule({...})`
 - 直接 `export default { ... }` 不是合法入口
 
 ### 3. 写 server handlers
@@ -70,7 +70,7 @@ export default defineCallaCollection({
 ```ts
 import { getQuery, type H3Event } from 'h3'
 
-export interface CallaMeta {
+export interface ApiModuleMeta {
   query: {
     name?: string
   }
@@ -81,11 +81,11 @@ export interface CallaMeta {
 
 export default defineEventHandler((event: H3Event) => {
   const query = getQuery(event)
-  const name = typeof query.name === 'string' ? query.name : 'calla'
+  const name = typeof query.name === 'string' ? query.name : 'apim'
 
   return {
     message: `Hello, ${name}!`,
-  } satisfies CallaMeta['res']
+  } satisfies ApiModuleMeta['res']
 })
 ```
 
@@ -94,7 +94,7 @@ export default defineEventHandler((event: H3Event) => {
 ```ts
 import { readBody, type H3Event } from 'h3'
 
-export interface CallaMeta {
+export interface ApiModuleMeta {
   body: {
     message: string
     repeat?: number
@@ -106,27 +106,27 @@ export interface CallaMeta {
 }
 
 export default defineEventHandler(async (event: H3Event) => {
-  const body = await readBody<CallaMeta['body']>(event)
+  const body = await readBody<ApiModuleMeta['body']>(event)
   const repeat = Math.max(1, Math.min(3, body?.repeat ?? 1))
   const message = body?.message ?? ''
 
   return {
     echoed: Array.from({ length: repeat }, () => message),
     total: repeat,
-  } satisfies CallaMeta['res']
+  } satisfies ApiModuleMeta['res']
 })
 ```
 
 ### 4. 在客户端调用
 
-默认 `injectCallaToGlobal: true`，所以可以直接用全局 `calla`：
+默认 `injectApimToGlobal: true`，所以可以直接用全局 `apim`：
 
 ```ts
-const { data: profile } = await calla('/api/profile', {
-  query: { name: 'calla' },
+const { data: profile } = await apim('/api/profile', {
+  query: { name: 'apim' },
 })
 
-const { data: echoed } = await calla('/api/echo', {
+const { data: echoed } = await apim('/api/echo', {
   method: 'POST',
   body: {
     message: 'hello',
@@ -135,14 +135,14 @@ const { data: echoed } = await calla('/api/echo', {
 })
 ```
 
-如果你把 `injectCallaToGlobal` 关掉：
+如果你把 `injectApimToGlobal` 关掉：
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@callajs/nuxt'],
-  calla: {
+  modules: ['@hzgotb/apim-nuxt'],
+  apim: {
     collections: ['modules/demo-api'],
-    injectCallaToGlobal: false,
+    injectApimToGlobal: false,
   },
 })
 ```
@@ -150,7 +150,7 @@ export default defineNuxtConfig({
 则显式导入：
 
 ```ts
-import { calla } from '#calla/calla'
+import { apim } from '#apim/apim'
 ```
 
 ## 路由文件命名规则
@@ -170,14 +170,14 @@ import { calla } from '#calla/calla'
 - route group segment: `(admin)`
 - env suffix: `.dev` / `.prod` / `.prerender`
 
-## `calla.collections` 支持的写法
+## `apim.collections` 支持的写法
 
 ### 目录式
 
 会自动补 `/collection.ts`：
 
 ```ts
-calla: {
+apim: {
   collections: ['modules/demo-api'],
 }
 ```
@@ -185,7 +185,7 @@ calla: {
 ### 显式 TypeScript 文件
 
 ```ts
-calla: {
+apim: {
   collections: ['modules/demo-explicit/demo-module.ts'],
 }
 ```
@@ -193,25 +193,25 @@ calla: {
 ### glob
 
 ```ts
-calla: {
+apim: {
   collections: ['modules/*'],
 }
 ```
 
 ## Collection 配置
 
-### `defineCallaCollection(...)`
+### `defineApiModule(...)`
 
 ```ts
-import { defineCallaCollection } from '@callajs/nuxt'
+import { defineApiModule } from '@hzgotb/apim-nuxt'
 ```
 
 它返回一个带运行时 key 的 collection entry，模块加载时会先校验这个 key，再解包出真正的 collection 配置。
 
-### `CallaCollection`
+### `ApimCollection`
 
 ```ts
-interface CallaCollection {
+interface ApimCollection {
   name: string
   root?: string
   routeGroups: ApiRouteGroup[]
@@ -258,7 +258,7 @@ ignore 有两层：
 示例：
 
 ```ts
-export default defineCallaCollection({
+export default defineApiModule({
   name: 'demo-api',
   ignore: ['**/types/**', '**/*.types.*'],
   routeGroups: [
@@ -280,9 +280,9 @@ export default defineCallaCollection({
 - 第一个 group 继承 collection 级 ignore
 - 第二个 group 不继承 collection ignore，而是从自己的规则重新开始
 
-## `CallaMeta` 规则
+## `ApiModuleMeta` 规则
 
-模块只会从 handler 里提取名为 `CallaMeta` 的导出类型，且只识别三个字段：
+模块只会从 handler 里提取名为 `ApiModuleMeta` 的导出类型，且只识别三个字段：
 
 - `body`
 - `query`
@@ -291,14 +291,14 @@ export default defineCallaCollection({
 支持两种写法：
 
 ```ts
-export interface CallaMeta {
+export interface ApiModuleMeta {
   query: { id: string }
   res: { ok: true }
 }
 ```
 
 ```ts
-export type CallaMeta = {
+export type ApiModuleMeta = {
   body: { message: string }
   res: { ok: true }
 }
@@ -306,11 +306,11 @@ export type CallaMeta = {
 
 不会参与类型生成的情况：
 
-- 导出名不是 `CallaMeta`
+- 导出名不是 `ApiModuleMeta`
 - 不是 interface / type literal
 - 字段不是 `body` / `query` / `res`
 
-## `calla.exclude`
+## `apim.exclude`
 
 当宿主应用已经有 `server/api` 或 `server/routes` 路由，而你又引入了第三方 collection 时，可以用 `exclude` 主动屏蔽 collection handler。
 
@@ -324,8 +324,8 @@ export type CallaMeta = {
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@callajs/nuxt'],
-  calla: {
+  modules: ['@hzgotb/apim-nuxt'],
+  apim: {
     collections: ['modules/demo-api'],
     exclude: ['GET /api/profile'],
   },
@@ -336,7 +336,7 @@ export default defineNuxtConfig({
 
 - 不参与冲突检测
 - 不注册到 Nitro
-- 不进入 `calla` 类型生成
+- 不进入 `apim` 类型生成
 
 ## 宿主路由冲突
 
@@ -359,17 +359,17 @@ export default defineNuxtConfig({
 
 - `host: GET /api/profile` vs `collection: POST /api/profile`
 
-## `calla(...)` 的运行方式
+## `apim(...)` 的运行方式
 
-`calla` 不是额外的请求运行时。当前实现是：
+`apim` 不是额外的请求运行时。当前实现是：
 
-1. 从 handler 的 `CallaMeta` 生成类型模板
-2. 把源码里的 `calla(...)` 编译期改写成 `useFetch(...)`
+1. 从 handler 的 `ApiModuleMeta` 生成类型模板
+2. 把源码里的 `apim(...)` 编译期改写成 `useFetch(...)`
 
 所以你得到的是：
 
 - `useFetch` 的运行时行为
-- `CallaMeta` 驱动的请求/响应类型
+- `ApiModuleMeta` 驱动的请求/响应类型
 
 ## `runtime/stores`
 
@@ -406,8 +406,8 @@ app/
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@callajs/nuxt'],
-  calla: {
+  modules: ['@hzgotb/apim-nuxt'],
+  apim: {
     collections: ['modules/demo-api'],
   },
 })
@@ -416,9 +416,9 @@ export default defineNuxtConfig({
 `modules/demo-api/collection.ts`
 
 ```ts
-import { defineCallaCollection } from '@callajs/nuxt'
+import { defineApiModule } from '@hzgotb/apim-nuxt'
 
-export default defineCallaCollection({
+export default defineApiModule({
   name: 'demo-api',
   ignore: ['**/types/**', '**/*.types.*'],
   routeGroups: [
@@ -433,8 +433,8 @@ export default defineCallaCollection({
 客户端：
 
 ```ts
-const { data } = await calla('/api/profile', {
-  query: { name: 'calla' },
+const { data } = await apim('/api/profile', {
+  query: { name: 'apim' },
 })
 ```
 

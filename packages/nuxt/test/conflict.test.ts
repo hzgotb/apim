@@ -1,13 +1,13 @@
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { genCallaTemplate } from '../src/templates'
+import { genApimTemplate } from '../src/generator/templates'
 import {
   assertNoComparableRouteConflicts,
   filterExcludedCollectionHandlers,
   toComparableCollectionHandler,
   toComparableHostHandler,
   toRouteSignature,
-} from '../src/conflict'
+} from '../src/route/conflict'
 
 const profileHandler = fileURLToPath(
   new URL(
@@ -142,7 +142,7 @@ describe('exclude filtering', () => {
     ).toEqual([])
   })
 
-  it('keeps excluded handlers out of the generated calla template', async () => {
+  it('keeps excluded handlers out of the generated apim template', async () => {
     const handlers = filterExcludedCollectionHandlers(
       [
         {
@@ -157,8 +157,8 @@ describe('exclude filtering', () => {
       ['GET /api/profile'],
     )
 
-    await expect(genCallaTemplate(handlers, false)).resolves.not.toContain(
-      "'/api/profile'",
+    await expect(genApimTemplate(handlers, false)).resolves.not.toContain(
+      '\'/api/profile\'',
     )
   })
 })

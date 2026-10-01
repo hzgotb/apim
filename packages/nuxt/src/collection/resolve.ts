@@ -38,7 +38,7 @@ async function resolveCollectionGlob(collectionRef: string, rootDir: string) {
 
   if (!matches.length) {
     throw new Error(
-      `[calla] Collection glob "${collectionRef}" matched no files under "${rootDir}".`,
+      `[apim] Collection glob "${collectionRef}" matched no files under "${rootDir}".`,
     )
   }
 

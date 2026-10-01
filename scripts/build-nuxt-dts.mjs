@@ -40,7 +40,7 @@ async function emitDeclaration(filePath) {
 
   if (result.diagnostics?.length) {
     throw new Error(
-      `[calla] Failed to generate declaration for ${relative(workspaceRoot, filePath)}\n${formatDiagnostics(result.diagnostics)}`,
+      `[apim] Failed to generate declaration for ${relative(workspaceRoot, filePath)}\n${formatDiagnostics(result.diagnostics)}`,
     )
   }
 

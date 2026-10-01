@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 const expectedRepositoryBase = {
   type: 'git',
-  url: 'https://github.com/hzgotb/callajs',
+  url: 'https://github.com/hzgotb/apim',
 }
 
 async function readPackageJson(path: string) {
@@ -12,6 +12,18 @@ async function readPackageJson(path: string) {
 }
 
 describe('published package metadata', () => {
+  it('uses the public apim package names', async () => {
+    const cliPackage = await readPackageJson('packages/cli/package.json')
+    const nuxtPackage = await readPackageJson('packages/nuxt/package.json')
+
+    expect(cliPackage.name).toBe('@hzgotb/apim-cli')
+    expect(nuxtPackage.name).toBe('@hzgotb/apim-nuxt')
+    expect(nuxtPackage.dependencies).toHaveProperty(
+      '@hzgotb/apim-cli',
+      'workspace:*',
+    )
+  })
+
   it('declares explicit provenance-friendly repository metadata for published packages', async () => {
     const cliPackage = await readPackageJson('packages/cli/package.json')
     const nuxtPackage = await readPackageJson('packages/nuxt/package.json')

@@ -1,6 +1,6 @@
-import { defineCallaCollection } from '@callajs/nuxt'
+import { defineApiModule } from '@hzgotb/apim-nuxt'
 
-export default defineCallaCollection({
+export default defineApiModule({
   name: 'playground-demo-api',
   ignore: ['**/types/**', '**/*.types.*'],
   routeGroups: [

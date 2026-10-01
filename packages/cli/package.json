@@ -1,14 +1,14 @@
 {
-  "name": "@callajs/cli",
+  "name": "@hzgotb/apim-cli",
   "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hzgotb/callajs",
+    "url": "https://github.com/hzgotb/apim",
     "directory": "packages/cli"
   },
   "type": "module",
   "bin": {
-    "calla": "./bin/calla.mjs"
+    "apim": "./bin/apim.mjs"
   },
   "files": [
     "bin",

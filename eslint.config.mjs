@@ -19,8 +19,12 @@ export default createConfigForNuxt({
     },
   })
   .append({
-    files: ['packages/nuxt/src/calla.ts'],
+    files: [
+      'packages/nuxt/src/apim.ts',
+      'packages/nuxt/src/runtime/apim.ts',
+    ],
     rules: {
       '@typescript-eslint/no-invalid-void-type': 'off',
+      '@typescript-eslint/unified-signatures': 'off',
     },
   })

@@ -21,7 +21,7 @@ interface AstNode {
   [key: string]: any
 }
 
-const CALLA_CALL_NAME = 'calla'
+const APIM_CALL_NAME = 'apim'
 const USE_FETCH_NAME = 'useFetch'
 const SCRIPT_LANG_SUFFIX: Record<string, string> = {
   js: 'js',
@@ -40,7 +40,7 @@ function isSupportedScriptFile(id: string) {
 }
 
 function shouldTransform(id: string, code: string) {
-  if (!code.includes(`${CALLA_CALL_NAME}(`)) return false
+  if (!code.includes(`${APIM_CALL_NAME}(`)) return false
   if (id.startsWith('\0')) return false
   if (
     id.includes('/node_modules/')
@@ -315,8 +315,8 @@ function walkAst(
     case 'CallExpression': {
       if (
         node.callee?.type === 'Identifier'
-        && node.callee.name === CALLA_CALL_NAME
-        && !scopeHasBinding(scope, CALLA_CALL_NAME)
+        && node.callee.name === APIM_CALL_NAME
+        && !scopeHasBinding(scope, APIM_CALL_NAME)
         && typeof node.callee.start === 'number'
         && typeof node.callee.end === 'number'
       ) {
@@ -382,9 +382,9 @@ function getVueScriptId(id: string, lang?: string) {
   return `${id}.${suffix}`
 }
 
-export function createCallaToUseFetchPlugin(): Plugin {
+export function createApimToUseFetchPlugin(): Plugin {
   return {
-    name: 'calla:calla-to-use-fetch',
+    name: 'apim:apim-to-use-fetch',
     enforce: 'pre',
     async transform(code, id) {
       const cleanId = stripQuery(id)
@@ -430,7 +430,7 @@ export function createCallaToUseFetchPlugin(): Plugin {
       }
       catch (error) {
         this.warn(
-          `[calla] Failed to rewrite calla() in ${cleanId}: ${error instanceof Error ? error.message : String(error)}`,
+          `[apim] Failed to rewrite apim() in ${cleanId}: ${error instanceof Error ? error.message : String(error)}`,
         )
         return null
       }

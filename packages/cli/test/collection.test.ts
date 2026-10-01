@@ -14,8 +14,8 @@ describe('buildCollectionFiles', () => {
       `ignore: ['**/types/**', '**/*.types.*']`,
     )
     expect(collectionFile?.contents).toContain(
-      `import { defineCallaCollection } from '@callajs/nuxt'`,
+      `import { defineApiModule } from '@hzgotb/apim-nuxt'`,
     )
-    expect(collectionFile?.contents).toContain('export default defineCallaCollection({')
+    expect(collectionFile?.contents).toContain('export default defineApiModule({')
   })
 })

@@ -2,14 +2,14 @@
   <main class="playground">
     <header class="hero">
       <p class="eyebrow">
-        calla playground
+        apim playground
       </p>
       <h1>Local interface module smoke test</h1>
       <p class="intro">
         The playground loads one collection from a directory ref and another from
-        an explicit <code>.ts</code> file ref. This page uses <code>calla()</code>
+        an explicit <code>.ts</code> file ref. This page uses <code>apim()</code>
         so the current build can exercise route scanning, generated payload types,
-        and both <code>calla.collections</code> resolution modes.
+        and both <code>apim.collections</code> resolution modes.
       </p>
     </header>
 
@@ -133,8 +133,8 @@
 </template>
 
 <script setup lang="ts">
-const profileName = ref('calla')
-const echoMessage = ref('calla macro works')
+const profileName = ref('apim')
+const echoMessage = ref('apim macro works')
 const echoRepeat = ref(2)
 const explicitTag = ref('explicit-ts-file')
 
@@ -143,7 +143,7 @@ const {
   error: profileError,
   status: profileStatus,
   refresh: refreshProfile,
-} = await calla('/demo/profile', {
+} = await apim('/demo/profile', {
   query: {
     name: profileName,
   },
@@ -155,7 +155,7 @@ const {
   error: echoError,
   status: echoStatus,
   refresh: refreshEcho,
-} = await calla('/demo/echo', {
+} = await apim('/demo/echo', {
   method: 'post',
   body: {
     message: echoMessage,
@@ -169,7 +169,7 @@ const {
   error: explicitError,
   status: explicitStatus,
   refresh: refreshExplicit,
-} = await calla('/demo-explicit/status', {
+} = await apim('/demo-explicit/status', {
   query: {
     tag: explicitTag,
   },

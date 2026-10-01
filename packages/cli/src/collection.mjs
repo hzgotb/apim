@@ -36,16 +36,16 @@ function isOutsideRoot(relativePath) {
 
 /**
  * Generates the contents of a collection.ts configuration file.
- * This file exports an API collection definition for the Calla tool.
+ * This file exports an API collection definition for the APIM tool.
  * @param {string} name - The name of the collection (typically derived from directory name)
  * @param {string} clientPrefix - The prefix to use for client-side routes (e.g., '/api')
  * @returns {string} - TypeScript source code for the collection file
  */
 function toCollectionFileContent(name, clientPrefix) {
   return [
-    `import { defineCallaCollection } from '@callajs/nuxt'`,
+    `import { defineApiModule } from '@hzgotb/apim-nuxt'`,
     '',
-    'export default defineCallaCollection({',
+    'export default defineApiModule({',
     `  name: ${JSON.stringify(name)},`,
     `  ignore: ['**/types/**', '**/*.types.*'],`,
     '  routeGroups: [',
@@ -68,7 +68,7 @@ function toExampleHandlerContent() {
   return [
     `import { getQuery } from 'h3'`,
     '',
-    'export interface CallaMeta {',
+    'export interface ApiModuleMeta {',
     '  query: {',
     '    name?: string',
     '  }',
@@ -79,11 +79,11 @@ function toExampleHandlerContent() {
     '',
     'export default defineEventHandler((event) => {',
     '  const query = getQuery(event)',
-    `  const name = typeof query.name === 'string' ? query.name : 'calla'`,
+    `  const name = typeof query.name === 'string' ? query.name : 'apim'`,
     '',
     '  return {',
     '    message: `Hello, ${name}!`,',
-    `  } satisfies CallaMeta['res']`,
+    `  } satisfies ApiModuleMeta['res']`,
     '})',
     '',
   ].join('\n')
@@ -102,12 +102,12 @@ export function deriveCollectionName(targetPath) {
   const name = basename(normalizedPath)
 
   if (!name || name === '.' || name === sep) {
-    throw new Error('[calla] Target path must end with a directory name.')
+    throw new Error('[apim] Target path must end with a directory name.')
   }
 
   if (TYPESCRIPT_FILE_RE.test(name)) {
     throw new Error(
-      '[calla] Target path must be a directory path, not a TypeScript file path.',
+      '[apim] Target path must be a directory path, not a TypeScript file path.',
     )
   }
 
@@ -130,13 +130,13 @@ export function resolveTargetDirectory(targetPath, rootDir = process.cwd()) {
 
   if (!trimmedTargetPath) {
     throw new Error(
-      '[calla] Missing target path. Pass a project-relative directory path.',
+      '[apim] Missing target path. Pass a project-relative directory path.',
     )
   }
 
   if (isAbsolute(trimmedTargetPath)) {
     throw new Error(
-      '[calla] Target path must be relative to the Nuxt app root.',
+      '[apim] Target path must be relative to the Nuxt app root.',
     )
   }
 
@@ -144,7 +144,7 @@ export function resolveTargetDirectory(targetPath, rootDir = process.cwd()) {
   const relativeTarget = relative(rootDir, resolvedTarget)
 
   if (isOutsideRoot(relativeTarget)) {
-    throw new Error('[calla] Target path must stay inside the Nuxt app root.')
+    throw new Error('[apim] Target path must stay inside the Nuxt app root.')
   }
 
   return {
@@ -169,14 +169,14 @@ export async function assertTargetDirectoryIsWritable(targetDir, targetLabel) {
 
     if (!stats.isDirectory()) {
       throw new Error(
-        `[calla] Target "${targetLabel}" already exists and is not a directory.`,
+        `[apim] Target "${targetLabel}" already exists and is not a directory.`,
       )
     }
 
     const entries = await readdir(targetDir)
     if (entries.length > 0) {
       throw new Error(
-        `[calla] Target "${targetLabel}" already exists and is not empty.`,
+        `[apim] Target "${targetLabel}" already exists and is not empty.`,
       )
     }
   }

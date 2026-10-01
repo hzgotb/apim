@@ -4,7 +4,7 @@ export default defineConfig([
   {
     entry: {
       module: './src/module.ts',
-      calla: './src/calla.ts',
+      apim: './src/runtime/apim.ts',
     },
     format: 'esm',
     dts: false,
@@ -20,7 +20,7 @@ export default defineConfig([
   },
   {
     entry: {
-      calla: '../cli/src/calla.mjs',
+      apim: '../cli/src/apim.mjs',
     },
     format: 'esm',
     dts: false,

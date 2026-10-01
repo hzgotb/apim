@@ -2,7 +2,7 @@ import MyModule from '../../../src/module'
 
 export default defineNuxtConfig({
   modules: [MyModule],
-  calla: {
+  apim: {
     collections: ['modules/demo-api'],
   },
 })

@@ -1,9 +1,9 @@
 export default defineNuxtConfig({
-  modules: ['@callajs/nuxt'],
+  modules: ['@hzgotb/apim-nuxt'],
   devtools: { enabled: true },
   compatibilityDate: 'latest',
-  calla: {
-    injectCallaToGlobal: true,
+  apim: {
+    injectApimToGlobal: true,
     collections: [
       'modules/demo-api',
       'modules/demo-explicit/demo-module.ts',

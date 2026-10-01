@@ -8,7 +8,7 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
-    "@callajs/nuxt": "workspace:*",
+    "@hzgotb/apim-nuxt": "workspace:*",
     "nuxt": "catalog:"
   }
 }

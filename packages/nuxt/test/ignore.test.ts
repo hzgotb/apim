@@ -1,9 +1,8 @@
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { basename } from 'pathe'
-import { dirname, join } from 'pathe'
+import { basename, dirname, join } from 'pathe'
 import { afterEach, describe, expect, it } from 'vitest'
-import { scanServerRoutes } from '../src/scan'
+import { scanServerRoutes } from '../src/route/scan'
 
 type ResolveRouteGroupIgnore = (
   collectionIgnore?: string[],
@@ -13,12 +12,12 @@ type ResolveRouteGroupIgnore = (
 const tempRoots: string[] = []
 
 async function loadResolveRouteGroupIgnore() {
-  const mod = await import('../src/ignore').catch(() => ({}))
+  const mod = await import('../src/route/ignore').catch(() => ({}))
   return mod.resolveRouteGroupIgnore as ResolveRouteGroupIgnore | undefined
 }
 
 async function createFixture(files: Record<string, string>) {
-  const root = await mkdtemp(join(tmpdir(), 'calla-nuxt-ignore-'))
+  const root = await mkdtemp(join(tmpdir(), 'apim-nuxt-ignore-'))
   tempRoots.push(root)
 
   await Promise.all(
