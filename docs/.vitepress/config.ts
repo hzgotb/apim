@@ -1,7 +1,10 @@
 import { defineConfig } from 'vitepress'
 
+const base = process.env.DOCS_BASE ?? '/'
+
 export default defineConfig({
   title: 'apim',
+  base,
   description: 'Typed API collections for Nuxt and Nitro',
   lang: 'zh-CN',
   cleanUrls: true,
