@@ -44,10 +44,12 @@ async function emitDeclaration(filePath) {
     )
   }
 
-  const outputPath = resolve(
-    distRoot,
-    relative(sourceRoot, filePath).replace(/\.ts$/, '.d.ts'),
-  )
+  const sourceRelativePath = relative(sourceRoot, filePath)
+  const outputRelativePath = sourceRelativePath === 'runtime\\apim.ts'
+    || sourceRelativePath === 'runtime/apim.ts'
+    ? 'apim.d.ts'
+    : sourceRelativePath.replace(/\.ts$/, '.d.ts')
+  const outputPath = resolve(distRoot, outputRelativePath)
 
   await mkdir(dirname(outputPath), { recursive: true })
   await writeFile(outputPath, result.outputText, 'utf8')

@@ -8,7 +8,7 @@
 
 ### 2. 扫描 handlers
 
-每个 `routeGroup` 扫描自己的 `dir`。文件名沿用 Nitro 约定，扫描结果包含文件路径、HTTP method、最终 route 和 lazy 等注册信息。
+`handlers` 中的每个分组扫描自己的 `dir`。文件名沿用 Nitro 约定，扫描结果包含文件路径、HTTP method、最终 route 和 lazy 等注册信息。
 
 ### 3. 注册与校验
 

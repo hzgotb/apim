@@ -19,9 +19,12 @@
     "docs:build": "pnpm --dir docs build",
     "docs:preview": "pnpm --dir docs preview",
     "lint": "eslint .",
+    "vp:check": "vp check --no-fmt",
+    "vp:unit": "vp test packages/cli/test packages/nuxt/test/collection-entry.test.ts packages/nuxt/test/collection-ref.test.ts packages/nuxt/test/conflict.test.ts packages/nuxt/test/ignore.test.ts packages/nuxt/test/scan.test.ts test/package-metadata.test.ts",
+    "vp:build": "vp run --workspace-root build",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:types": "tsc --project packages/nuxt/tsconfig.json --noEmit && pnpm --dir packages/nuxt/playground exec vue-tsc --noEmit"
+    "test:types": "tsc --project packages/nuxt/tsconfig.json --noEmit && pnpm --dir packages/nuxt/playground exec nuxt prepare && pnpm --dir packages/nuxt/playground exec vue-tsc --noEmit"
   },
   "devDependencies": {
     "@nuxt/devtools": "catalog:",
@@ -37,6 +40,7 @@
     "vite": "catalog:",
     "vitest": "catalog:",
     "bumpp": "catalog:",
-    "vue-tsc": "catalog:"
+    "vue-tsc": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

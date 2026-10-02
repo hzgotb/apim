@@ -9,7 +9,7 @@ describe('defineApiModule entry', () => {
   it('wraps collection options in a keyed runtime entry', () => {
     const options = {
       name: 'demo',
-      routeGroups: [
+      handlers: [
         {
           dir: 'runtime/server',
           clientPrefix: '/demo',
@@ -26,7 +26,7 @@ describe('defineApiModule entry', () => {
   it('unwraps a keyed runtime entry into collection options', () => {
     const options = {
       name: 'demo',
-      routeGroups: [
+      handlers: [
         {
           dir: 'runtime/server',
           clientPrefix: '/demo',
@@ -47,7 +47,7 @@ describe('defineApiModule entry', () => {
       parseApiModuleEntry(
         {
           name: 'demo',
-          routeGroups: [],
+          handlers: [],
         },
         '/virtual/demo.collection.ts',
       ),

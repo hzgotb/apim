@@ -17,5 +17,7 @@ describe('buildCollectionFiles', () => {
       `import { defineApiModule } from '@hzgotb/apim-nuxt'`,
     )
     expect(collectionFile?.contents).toContain('export default defineApiModule({')
+    expect(collectionFile?.contents).toContain('  handlers: [')
+    expect(collectionFile?.contents).not.toContain('routeGroups')
   })
 })

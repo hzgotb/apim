@@ -12,8 +12,7 @@ import {
 import type { NuxtModule } from '@nuxt/schema'
 import {
   parseApiModuleEntry,
-  type ApimCollection,
-  type ApiRouteGroup,
+  type ApiCollection,
 } from './collection/index'
 import {
   assertNoComparableRouteConflicts,
@@ -39,13 +38,15 @@ export interface ModuleOptions {
   exclude?: string[]
 }
 
-interface LoadedCollection extends ApimCollection {
+interface LoadedCollection extends ApiCollection {
   moduleRoot: string
   serverRoot: string
   storesRoot: string
 }
 
-function describeRouteGroup(group: ApiRouteGroup) {
+function describeRouteGroup(
+  group: ApiCollection['handlers'][number],
+) {
   const dir = group.dir instanceof RegExp ? group.dir.toString() : group.dir
   return `"${dir}" -> "${group.clientPrefix}"`
 }
@@ -87,11 +88,11 @@ async function loadCollection(
   )
 
   if (
-    !Array.isArray(normalizedCollection.routeGroups)
-    || normalizedCollection.routeGroups.length === 0
+    !Array.isArray(normalizedCollection.handlers)
+    || normalizedCollection.handlers.length === 0
   ) {
     throw new Error(
-      `[apim] Collection "${normalizedCollection.name}" must define at least one route group.`,
+      `[apim] Collection "${normalizedCollection.name}" must define at least one handler group.`,
     )
   }
 
@@ -115,7 +116,7 @@ async function scanCollectionRoutes(
   collection: LoadedCollection,
 ): Promise<CollectionHandler[]> {
   const handlerGroups = await Promise.all(
-    collection.routeGroups.map((group) => {
+    collection.handlers.map((group) => {
       const ignore = resolveRouteGroupIgnore(
         collection.ignore,
         group.ignore,

@@ -47,7 +47,7 @@ import { defineApiModule } from '@hzgotb/apim-nuxt'
 export default defineApiModule({
   name: 'demo-api',
   ignore: ['**/types/**', '**/*.types.*'],
-  routeGroups: [
+  handlers: [
     {
       dir: 'runtime/server',
       clientPrefix: '/api',
@@ -167,7 +167,7 @@ import { apim } from '#apim/apim'
 
 还支持 Nitro 风格的：
 
-- route group segment: `(admin)`
+- handler group segment: `(admin)`
 - env suffix: `.dev` / `.prod` / `.prerender`
 
 ## `apim.collections` 支持的写法
@@ -208,13 +208,13 @@ import { defineApiModule } from '@hzgotb/apim-nuxt'
 
 它返回一个带运行时 key 的 collection entry，模块加载时会先校验这个 key，再解包出真正的 collection 配置。
 
-### `ApimCollection`
+### `ApiCollection`
 
 ```ts
-interface ApimCollection {
+interface ApiCollection {
   name: string
   root?: string
-  routeGroups: ApiRouteGroup[]
+  handlers: ApiHandlers[]
   ignore?: string[]
 }
 ```
@@ -223,13 +223,13 @@ interface ApimCollection {
 
 - `name`: collection 名，用于错误信息和冲突提示
 - `root`: 可选。默认是 collection 文件所在目录；如果你需要把入口文件和 runtime 目录分开，可以显式指定
-- `routeGroups`: 必填。告诉模块要扫哪些目录、映射到哪个客户端前缀
+- `handlers`: 必填。告诉模块要扫哪些目录、映射到哪个客户端前缀
 - `ignore`: collection 级别忽略规则
 
-### `ApiRouteGroup`
+### `ApiHandlers`
 
 ```ts
-interface ApiRouteGroup {
+type ApiHandlers = {
   dir: string | RegExp
   clientPrefix: string
   ignore?: string[]
@@ -240,20 +240,20 @@ interface ApiRouteGroup {
 
 - `dir`: 可以是字符串目录，也可以是 `RegExp`
 - `clientPrefix`: 扫描结果最终挂到哪个前缀下
-- `ignore`: route group 级别忽略规则
+- `ignore`: handler 分组级别忽略规则
 
 ## Ignore 规则
 
 ignore 有两层：
 
 - `collection.ignore`
-- `routeGroup.ignore`
+- `handlers[].ignore`
 
 合并规则：
 
 - 默认先继承 `collection.ignore`
-- 再追加 `routeGroup.ignore`
-- 如果 `routeGroup.ignore[0] === '!...'`，则取消继承，只使用 route group 自己的规则
+- 再追加 `handlers[].ignore`
+- 如果 `handlers[].ignore[0] === '!...'`，则取消继承，只使用当前 handler 分组自己的规则
 
 示例：
 
@@ -261,7 +261,7 @@ ignore 有两层：
 export default defineApiModule({
   name: 'demo-api',
   ignore: ['**/types/**', '**/*.types.*'],
-  routeGroups: [
+  handlers: [
     {
       dir: 'runtime/server',
       clientPrefix: '/api',
@@ -421,7 +421,7 @@ import { defineApiModule } from '@hzgotb/apim-nuxt'
 export default defineApiModule({
   name: 'demo-api',
   ignore: ['**/types/**', '**/*.types.*'],
-  routeGroups: [
+  handlers: [
     {
       dir: 'runtime/server',
       clientPrefix: '/api',

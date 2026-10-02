@@ -20,6 +20,10 @@ function trimTrailingSeparators(value) {
   return value.replace(/[\\/]+$/, '')
 }
 
+function toPosixPath(value) {
+  return value.replaceAll('\\', '/')
+}
+
 /**
  * Checks if a relative path escapes outside the root directory.
  * Used to prevent paths like '../foo' or absolute paths from being resolved incorrectly.
@@ -48,7 +52,7 @@ function toCollectionFileContent(name, clientPrefix) {
     'export default defineApiModule({',
     `  name: ${JSON.stringify(name)},`,
     `  ignore: ['**/types/**', '**/*.types.*'],`,
-    '  routeGroups: [',
+    '  handlers: [',
     '    {',
     `      dir: 'runtime/server',`,
     `      clientPrefix: ${JSON.stringify(clientPrefix)},`,
@@ -68,6 +72,15 @@ function toExampleHandlerContent() {
   return [
     `import { getQuery } from 'h3'`,
     '',
+    '/**',
+    ' * 当前 handler 的静态请求与响应契约。',
+    ' *',
+    ' * - `body`：请求体类型。',
+    ' * - `query`：查询参数类型。',
+    ' * - `res`：成功响应类型。',
+    ' *',
+    ' * apim 只读取字段声明来生成客户端类型，不会执行运行时校验。',
+    ' */',
     'export interface ApiModuleMeta {',
     '  query: {',
     '    name?: string',
@@ -150,7 +163,7 @@ export function resolveTargetDirectory(targetPath, rootDir = process.cwd()) {
   return {
     name: deriveCollectionName(trimmedTargetPath),
     resolvedTarget,
-    relativeTarget: relativeTarget || '.',
+    relativeTarget: toPosixPath(relativeTarget || '.'),
   }
 }
 
@@ -261,7 +274,7 @@ export async function scaffoldCollection({
     const absolutePath = resolve(target.resolvedTarget, file.relativePath)
     await mkdir(dirname(absolutePath), { recursive: true })
     await writeFile(absolutePath, file.contents, 'utf8')
-    createdFiles.push(relative(rootDir, absolutePath) || '.')
+    createdFiles.push(toPosixPath(relative(rootDir, absolutePath) || '.'))
   }
 
   return {

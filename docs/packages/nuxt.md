@@ -7,8 +7,8 @@ Nuxt 4 模块包，负责 collection 加载、handler 扫描、Nitro 注册、�
 ```ts
 import {
   defineApiModule,
-  type ApimCollection,
-  type ApiRouteGroup,
+  type ApiCollection,
+  type ApiHandlers,
 } from '@hzgotb/apim-nuxt'
 ```
 

@@ -2,7 +2,7 @@ import { defineApiModule } from '../../../../../src/collection/index'
 
 export default defineApiModule({
   name: 'demo-root',
-  routeGroups: [
+  handlers: [
     {
       dir: 'runtime/server',
       clientPrefix: '/',

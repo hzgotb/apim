@@ -1,6 +1,15 @@
 import { readFile } from 'node:fs/promises'
 import { parse } from 'oxc-parser'
 
+/**
+ * handler 可选导出的 `ApiModuleMeta` 是服务端实现与客户端调用之间的静态类型契约。
+ *
+ * - `body`：请求体类型。
+ * - `query`：查询参数类型。
+ * - `res`：成功响应类型。
+ *
+ * apim 只读取字段声明来生成客户端类型，不会参与运行时校验。
+ */
 type MetaField = 'body' | 'query' | 'res'
 
 const metaName = 'ApiModuleMeta'
