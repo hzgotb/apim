@@ -53,7 +53,7 @@ jobs:
           test "$(node -p "require('./packages/nuxt/package.json').version")" = "$VERSION"
 
       - name: Run checks
-        run: pnpm test && pnpm test:types && pnpm test:consumers
+        run: pnpm build && pnpm test && pnpm test:types && pnpm test:consumers
 
       - name: Publish CLI package
         run: pnpm --filter "@hzgotb/apim-cli" publish --access public --no-git-checks --provenance
