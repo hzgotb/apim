@@ -55,12 +55,30 @@ jobs:
       - name: Run checks
         run: pnpm build && pnpm test && pnpm test:types && pnpm test:consumers
 
+      - name: Check published versions
+        id: published
+        run: |
+          VERSION="${{ steps.publish-ref.outputs.value }}"
+          VERSION="${VERSION#v}"
+          if npm view "@hzgotb/apim-cli@$VERSION" version >/dev/null 2>&1; then
+            echo "cli=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "cli=false" >> "$GITHUB_OUTPUT"
+          fi
+          if npm view "@hzgotb/apim-nuxt@$VERSION" version >/dev/null 2>&1; then
+            echo "nuxt=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "nuxt=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish CLI package
+        if: steps.published.outputs.cli != 'true'
         run: pnpm --filter "@hzgotb/apim-cli" publish --access public --no-git-checks --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
       - name: Publish Nuxt package
+        if: steps.published.outputs.nuxt != 'true'
         run: pnpm --filter "@hzgotb/apim-nuxt" publish --access public --no-git-checks --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
