@@ -3,17 +3,9 @@ import { fileURLToPath } from 'node:url'
 import { createJiti } from 'jiti'
 import { dirname, extname, isAbsolute, resolve } from 'pathe'
 import '@nuxt/nitro-server/augments'
-import {
-  addTypeTemplate,
-  addVitePlugin,
-  createResolver,
-  defineNuxtModule,
-} from '@nuxt/kit'
+import { addTypeTemplate, addVitePlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
 import type { NuxtModule } from '@nuxt/schema'
-import {
-  parseApiModuleEntry,
-  type ApiCollection,
-} from './collection/index'
+import { parseApiModuleEntry, type ApiCollection } from './collection/index'
 import {
   assertNoComparableRouteConflicts,
   filterExcludedCollectionHandlers,
@@ -44,9 +36,7 @@ interface LoadedCollection extends ApiCollection {
   storesRoot: string
 }
 
-function describeRouteGroup(
-  group: ApiCollection['handlers'][number],
-) {
+function describeRouteGroup(group: ApiCollection['handlers'][number]) {
   const dir = group.dir instanceof RegExp ? group.dir.toString() : group.dir
   return `"${dir}" -> "${group.clientPrefix}"`
 }
@@ -55,10 +45,7 @@ function isFileLikePath(path: string) {
   return Boolean(extname(path))
 }
 
-function resolveCollectionRoot(
-  root: string | undefined,
-  collectionPath: string,
-) {
+function resolveCollectionRoot(root: string | undefined, collectionPath: string) {
   if (!root) {
     return dirname(collectionPath)
   }
@@ -68,38 +55,23 @@ function resolveCollectionRoot(
     return isFileLikePath(filePath) ? dirname(filePath) : filePath
   }
 
-  const normalizedRoot = isAbsolute(root)
-    ? root
-    : resolve(dirname(collectionPath), root)
-  return isFileLikePath(normalizedRoot)
-    ? dirname(normalizedRoot)
-    : normalizedRoot
+  const normalizedRoot = isAbsolute(root) ? root : resolve(dirname(collectionPath), root)
+  return isFileLikePath(normalizedRoot) ? dirname(normalizedRoot) : normalizedRoot
 }
 
-async function loadCollection(
-  collectionPath: string,
-): Promise<LoadedCollection> {
+async function loadCollection(collectionPath: string): Promise<LoadedCollection> {
   const importedCollection = await jiti.import(collectionPath, {
     default: true,
   })
-  const normalizedCollection = parseApiModuleEntry(
-    importedCollection,
-    collectionPath,
-  )
+  const normalizedCollection = parseApiModuleEntry(importedCollection, collectionPath)
 
-  if (
-    !Array.isArray(normalizedCollection.handlers)
-    || normalizedCollection.handlers.length === 0
-  ) {
+  if (!Array.isArray(normalizedCollection.handlers) || normalizedCollection.handlers.length === 0) {
     throw new Error(
       `[apim] Collection "${normalizedCollection.name}" must define at least one handler group.`,
     )
   }
 
-  const moduleRoot = resolveCollectionRoot(
-    normalizedCollection.root,
-    collectionPath,
-  )
+  const moduleRoot = resolveCollectionRoot(normalizedCollection.root, collectionPath)
   return {
     ...normalizedCollection,
     moduleRoot,
@@ -112,30 +84,18 @@ async function loadCollections(collectionRefs: string[]) {
   return Promise.all(collectionRefs.map(loadCollection))
 }
 
-async function scanCollectionRoutes(
-  collection: LoadedCollection,
-): Promise<CollectionHandler[]> {
+async function scanCollectionRoutes(collection: LoadedCollection): Promise<CollectionHandler[]> {
   const handlerGroups = await Promise.all(
-    collection.handlers.map((group) => {
-      const ignore = resolveRouteGroupIgnore(
-        collection.ignore,
-        group.ignore,
-        {
-          collectionName: collection.name,
-          routeGroupLabel: describeRouteGroup(group),
-        },
-      )
+    collection.handlers.map(group => {
+      const ignore = resolveRouteGroupIgnore(collection.ignore, group.ignore, {
+        collectionName: collection.name,
+        routeGroupLabel: describeRouteGroup(group),
+      })
 
-      return scanServerRoutes(
-        collection.moduleRoot,
-        group.dir,
-        group.clientPrefix,
-        {
-          ignore,
-        },
-      )
-    },
-    ),
+      return scanServerRoutes(collection.moduleRoot, group.dir, group.clientPrefix, {
+        ignore,
+      })
+    }),
   )
 
   return handlerGroups.flat().map(handler => ({
@@ -145,9 +105,7 @@ async function scanCollectionRoutes(
 }
 
 async function scanConfiguredCollections(collections: LoadedCollection[]) {
-  const handlerGroups = await Promise.all(
-    collections.map(scanCollectionRoutes),
-  )
+  const handlerGroups = await Promise.all(collections.map(scanCollectionRoutes))
   return handlerGroups.flat()
 }
 
@@ -164,61 +122,44 @@ const apimModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
     const apimEntry = resolver.resolve('./apim')
-    const collectionRefs = await resolveCollectionRefs(
-      options.collections,
-      nuxt.options.rootDir,
-    )
+    const collectionRefs = await resolveCollectionRefs(options.collections, nuxt.options.rootDir)
     const collections = await loadCollections(collectionRefs)
 
-    collections.forEach((collection) => {
+    collections.forEach(collection => {
       nuxt.options.watch.push(collection.serverRoot)
     })
 
     const getActiveCollectionHandlers = async () => {
       const scannedHandlers = await scanConfiguredCollections(collections)
-      const filteredHandlers = filterExcludedCollectionHandlers(
-        scannedHandlers,
-        options.exclude,
-      )
+      const filteredHandlers = filterExcludedCollectionHandlers(scannedHandlers, options.exclude)
 
-      assertNoComparableRouteConflicts(
-        filteredHandlers.map(toComparableCollectionHandler),
-      )
+      assertNoComparableRouteConflicts(filteredHandlers.map(toComparableCollectionHandler))
 
       return filteredHandlers
     }
 
-    let activeCollectionHandlers: CollectionHandler[] | undefined
-      = await getActiveCollectionHandlers()
+    let activeCollectionHandlers: CollectionHandler[] | undefined =
+      await getActiveCollectionHandlers()
 
-    nuxt.hook('nitro:config', async (nitroConfig) => {
+    nuxt.hook('nitro:config', async nitroConfig => {
       activeCollectionHandlers = await getActiveCollectionHandlers()
 
       const collectionHandlerPaths = new Set(
         activeCollectionHandlers.map(handler => handler.handler),
       )
-      const hostHandlers = [
-        ...(nuxt.options.serverHandlers ?? []),
-        ...(nitroConfig.handlers ?? []),
-      ]
+      const hostHandlers = [...(nuxt.options.serverHandlers ?? []), ...(nitroConfig.handlers ?? [])]
         .flatMap((handler): HostHandler[] => {
-          if (
-            typeof handler?.handler !== 'string'
-            || collectionHandlerPaths.has(handler.handler)
-          ) {
+          if (typeof handler?.handler !== 'string' || collectionHandlerPaths.has(handler.handler)) {
             return []
           }
           return [handler as HostHandler]
         })
         .map(toComparableHostHandler)
-      const collectionHandlers = activeCollectionHandlers.map(
-        toComparableCollectionHandler,
-      )
+      const collectionHandlers = activeCollectionHandlers.map(toComparableCollectionHandler)
 
-      assertNoComparableRouteConflicts([
-        ...hostHandlers,
-        ...collectionHandlers,
-      ], { crossSourceOnly: true })
+      assertNoComparableRouteConflicts([...hostHandlers, ...collectionHandlers], {
+        crossSourceOnly: true,
+      })
 
       nitroConfig.handlers ||= []
       nitroConfig.handlers.push(
@@ -228,32 +169,25 @@ const apimModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
       )
     })
 
-    nuxt.hook('nitro:init', async (nitro) => {
-      activeCollectionHandlers = activeCollectionHandlers
-        ?? (await getActiveCollectionHandlers())
+    nuxt.hook('nitro:init', async nitro => {
+      activeCollectionHandlers = activeCollectionHandlers ?? (await getActiveCollectionHandlers())
 
       const collectionHandlerPaths = new Set(
         activeCollectionHandlers.map(handler => handler.handler),
       )
       const hostHandlers = nitro.scannedHandlers
         .flatMap((handler): HostHandler[] => {
-          if (
-            typeof handler.handler !== 'string'
-            || collectionHandlerPaths.has(handler.handler)
-          ) {
+          if (typeof handler.handler !== 'string' || collectionHandlerPaths.has(handler.handler)) {
             return []
           }
           return [handler as HostHandler]
         })
         .map(toComparableHostHandler)
-      const collectionHandlers = activeCollectionHandlers.map(
-        toComparableCollectionHandler,
-      )
+      const collectionHandlers = activeCollectionHandlers.map(toComparableCollectionHandler)
 
-      assertNoComparableRouteConflicts([
-        ...hostHandlers,
-        ...collectionHandlers,
-      ], { crossSourceOnly: true })
+      assertNoComparableRouteConflicts([...hostHandlers, ...collectionHandlers], {
+        crossSourceOnly: true,
+      })
     })
 
     nuxt.options.alias[APIM_MODULE_ID] = apimEntry
@@ -261,16 +195,15 @@ const apimModule: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
     addTypeTemplate({
       filename: 'types/apim.d.ts',
       getContents: async () => {
-        const handlers
-          = activeCollectionHandlers ?? (await getActiveCollectionHandlers())
+        const handlers = activeCollectionHandlers ?? (await getActiveCollectionHandlers())
         return genApimTemplate(handlers, options.injectApimToGlobal)
       },
     })
 
     activeCollectionHandlers = undefined
 
-    nuxt.hook('imports:dirs', (dirs) => {
-      collections.forEach((collection) => {
+    nuxt.hook('imports:dirs', dirs => {
+      collections.forEach(collection => {
         if (existsSync(collection.storesRoot)) dirs.push(collection.storesRoot)
       })
     })
@@ -283,6 +216,6 @@ export default apimModule
 
 declare module 'nuxt/schema' {
   interface NuxtConfig {
-    apim?: ModuleOptions
+    apim?: Partial<ModuleOptions>
   }
 }

@@ -45,13 +45,8 @@ async function resolveCollectionGlob(collectionRef: string, rootDir: string) {
   return matches
 }
 
-async function resolveProjectCollectionPath(
-  collectionRef: string,
-  rootDir: string,
-) {
-  const projectPath = isAbsolute(collectionRef)
-    ? collectionRef
-    : resolve(rootDir, collectionRef)
+async function resolveProjectCollectionPath(collectionRef: string, rootDir: string) {
+  const projectPath = isAbsolute(collectionRef) ? collectionRef : resolve(rootDir, collectionRef)
 
   return resolvePath(projectPath)
 }
@@ -69,12 +64,10 @@ async function resolveCollectionRef(collectionRef: string, rootDir: string) {
 
   try {
     return [await resolveProjectCollectionPath(normalizedRef, rootDir)]
-  }
-  catch (projectError) {
+  } catch (projectError) {
     try {
       return [await resolvePath(normalizedRef)]
-    }
-    catch {
+    } catch {
       throw projectError
     }
   }
@@ -85,9 +78,7 @@ export async function resolveCollectionRefs(
   rootDir: string,
 ): Promise<string[]> {
   const resolvedGroups = await Promise.all(
-    collectionRefs.map(collectionRef =>
-      resolveCollectionRef(collectionRef, rootDir),
-    ),
+    collectionRefs.map(collectionRef => resolveCollectionRef(collectionRef, rootDir)),
   )
 
   return dedupePaths(resolvedGroups.flat())

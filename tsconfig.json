@@ -2,7 +2,7 @@
   "files": [],
   "references": [
     {
-      "path": "./packages/nuxt/tsconfig.json",
-    },
-  ],
+      "path": "./packages/nuxt/tsconfig.json"
+    }
+  ]
 }

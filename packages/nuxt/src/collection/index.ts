@@ -68,23 +68,18 @@ function isObjectRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
 }
 
-export function defineApiModule<T extends ApiCollection>(
-  options: T,
-): ApiModuleEntry<T> {
+export function defineApiModule<T extends ApiCollection>(options: T): ApiModuleEntry<T> {
   return {
     key: APIM_COLLECTION_KEY,
     options,
   }
 }
 
-export function parseApiModuleEntry(
-  entry: unknown,
-  collectionPath: string,
-): ApiCollection {
+export function parseApiModuleEntry(entry: unknown, collectionPath: string): ApiCollection {
   if (
-    !isObjectRecord(entry)
-    || entry.key !== APIM_COLLECTION_KEY
-    || !isObjectRecord(entry.options)
+    !isObjectRecord(entry) ||
+    entry.key !== APIM_COLLECTION_KEY ||
+    !isObjectRecord(entry.options)
   ) {
     throw new Error(
       `[apim] Collection "${collectionPath}" must export a default defineApiModule({...}) entry.`,

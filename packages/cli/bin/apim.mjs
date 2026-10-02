@@ -9,14 +9,8 @@ async function loadCli() {
     await access(distEntry)
     await import(distEntry.href)
     return
-  }
-  catch (error) {
-    if (
-      error
-      && typeof error === 'object'
-      && 'code' in error
-      && error.code === 'ENOENT'
-    ) {
+  } catch (error) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
       await import('../src/apim.mjs')
       return
     }

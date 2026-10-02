@@ -42,11 +42,7 @@ function isSupportedScriptFile(id: string) {
 function shouldTransform(id: string, code: string) {
   if (!code.includes(`${APIM_CALL_NAME}(`)) return false
   if (id.startsWith('\0')) return false
-  if (
-    id.includes('/node_modules/')
-    || id.includes('/.nuxt/')
-    || id.includes('/.output/')
-  )
+  if (id.includes('/node_modules/') || id.includes('/.nuxt/') || id.includes('/.output/'))
     return false
   return true
 }
@@ -59,10 +55,7 @@ function isScriptBlock(block: SFCScriptBlock | null): block is SFCScriptBlock {
   return block !== null
 }
 
-function collectPatternBindings(
-  node: AstNode | null | undefined,
-  bindings: Set<string>,
-) {
+function collectPatternBindings(node: AstNode | null | undefined, bindings: Set<string>) {
   if (!node) return
 
   switch (node.type) {
@@ -76,9 +69,7 @@ function collectPatternBindings(
       collectPatternBindings(node.argument, bindings)
       return
     case 'ArrayPattern':
-      node.elements?.forEach((element: AstNode | null) =>
-        collectPatternBindings(element, bindings),
-      )
+      node.elements?.forEach((element: AstNode | null) => collectPatternBindings(element, bindings))
       return
     case 'ObjectPattern':
       node.properties?.forEach((property: AstNode) => {
@@ -86,16 +77,12 @@ function collectPatternBindings(
           collectPatternBindings(property.value, bindings)
           return
         }
-        if (property.type === 'RestElement')
-          collectPatternBindings(property.argument, bindings)
+        if (property.type === 'RestElement') collectPatternBindings(property.argument, bindings)
       })
   }
 }
 
-function collectBindingsFromDeclaration(
-  node: AstNode | null | undefined,
-  bindings: Set<string>,
-) {
+function collectBindingsFromDeclaration(node: AstNode | null | undefined, bindings: Set<string>) {
   if (!node) return
 
   switch (node.type) {
@@ -126,19 +113,15 @@ function collectBindingsFromDeclaration(
 function collectDirectBlockBindings(statements: AstNode[] = []) {
   const bindings = new Set<string>()
 
-  statements.forEach((statement) => {
-    if (statement?.type === 'VariableDeclaration' && statement.kind === 'var')
-      return
+  statements.forEach(statement => {
+    if (statement?.type === 'VariableDeclaration' && statement.kind === 'var') return
     collectBindingsFromDeclaration(statement, bindings)
   })
 
   return bindings
 }
 
-function collectVarBindings(
-  node: AstNode | null | undefined,
-  bindings: Set<string>,
-) {
+function collectVarBindings(node: AstNode | null | undefined, bindings: Set<string>) {
   if (!node || typeof node !== 'object') return
 
   switch (node.type) {
@@ -160,9 +143,8 @@ function collectVarBindings(
   for (const value of Object.values(node)) {
     if (!value) continue
     if (Array.isArray(value)) {
-      value.forEach((child) => {
-        if (child && typeof child === 'object')
-          collectVarBindings(child, bindings)
+      value.forEach(child => {
+        if (child && typeof child === 'object') collectVarBindings(child, bindings)
       })
       continue
     }
@@ -170,20 +152,14 @@ function collectVarBindings(
   }
 }
 
-function createScope(
-  parent?: BindingScope,
-  initialBindings?: Iterable<string>,
-): BindingScope {
+function createScope(parent?: BindingScope, initialBindings?: Iterable<string>): BindingScope {
   return {
     parent,
     bindings: new Set(initialBindings),
   }
 }
 
-function scopeHasBinding(
-  scope: BindingScope | undefined,
-  name: string,
-): boolean {
+function scopeHasBinding(scope: BindingScope | undefined, name: string): boolean {
   let current = scope
   while (current) {
     if (current.bindings.has(name)) return true
@@ -209,8 +185,7 @@ function getSwitchBindings(node: AstNode) {
   const bindings = new Set<string>()
   node.cases?.forEach((caseNode: AstNode) => {
     caseNode.consequent?.forEach((statement: AstNode) => {
-      if (statement?.type === 'VariableDeclaration' && statement.kind === 'var')
-        return
+      if (statement?.type === 'VariableDeclaration' && statement.kind === 'var') return
       collectBindingsFromDeclaration(statement, bindings)
     })
   })
@@ -230,24 +205,15 @@ function walkAst(
       node.body?.forEach((statement: AstNode) =>
         collectBindingsFromDeclaration(statement, programBindings),
       )
-      node.body?.forEach((statement: AstNode) =>
-        collectVarBindings(statement, programBindings),
-      )
+      node.body?.forEach((statement: AstNode) => collectVarBindings(statement, programBindings))
       const programScope = createScope(scope, programBindings)
-      node.body?.forEach((statement: AstNode) =>
-        walkAst(statement, programScope, replacements),
-      )
+      node.body?.forEach((statement: AstNode) => walkAst(statement, programScope, replacements))
       return
     }
 
     case 'BlockStatement': {
-      const blockScope = createScope(
-        scope,
-        collectDirectBlockBindings(node.body),
-      )
-      node.body?.forEach((statement: AstNode) =>
-        walkAst(statement, blockScope, replacements),
-      )
+      const blockScope = createScope(scope, collectDirectBlockBindings(node.body))
+      node.body?.forEach((statement: AstNode) => walkAst(statement, blockScope, replacements))
       return
     }
 
@@ -256,15 +222,11 @@ function walkAst(
     case 'ArrowFunctionExpression': {
       const functionBindings = new Set<string>()
       collectPatternBindings(node.id, functionBindings)
-      node.params?.forEach((param: AstNode) =>
-        collectPatternBindings(param, functionBindings),
-      )
+      node.params?.forEach((param: AstNode) => collectPatternBindings(param, functionBindings))
       collectVarBindings(node.body, functionBindings)
       const functionScope = createScope(scope, functionBindings)
 
-      node.params?.forEach((param: AstNode) =>
-        walkAst(param, functionScope, replacements),
-      )
+      node.params?.forEach((param: AstNode) => walkAst(param, functionScope, replacements))
       walkAst(node.body, functionScope, replacements)
       return
     }
@@ -281,17 +243,14 @@ function walkAst(
     case 'ForInStatement':
     case 'ForOfStatement': {
       const loopBindings = getLoopBindings(node)
-      const loopScope = loopBindings.size
-        ? createScope(scope, loopBindings)
-        : scope
+      const loopScope = loopBindings.size ? createScope(scope, loopBindings) : scope
 
       for (const [key, value] of Object.entries(node)) {
         if (key === 'type' || key === 'start' || key === 'end') continue
         if (!value) continue
         if (Array.isArray(value)) {
-          value.forEach((child) => {
-            if (child && typeof child === 'object')
-              walkAst(child, loopScope, replacements)
+          value.forEach(child => {
+            if (child && typeof child === 'object') walkAst(child, loopScope, replacements)
           })
           continue
         }
@@ -302,23 +261,19 @@ function walkAst(
 
     case 'SwitchStatement': {
       const switchBindings = getSwitchBindings(node)
-      const switchScope = switchBindings.size
-        ? createScope(scope, switchBindings)
-        : scope
+      const switchScope = switchBindings.size ? createScope(scope, switchBindings) : scope
       walkAst(node.discriminant, switchScope, replacements)
-      node.cases?.forEach((caseNode: AstNode) =>
-        walkAst(caseNode, switchScope, replacements),
-      )
+      node.cases?.forEach((caseNode: AstNode) => walkAst(caseNode, switchScope, replacements))
       return
     }
 
     case 'CallExpression': {
       if (
-        node.callee?.type === 'Identifier'
-        && node.callee.name === APIM_CALL_NAME
-        && !scopeHasBinding(scope, APIM_CALL_NAME)
-        && typeof node.callee.start === 'number'
-        && typeof node.callee.end === 'number'
+        node.callee?.type === 'Identifier' &&
+        node.callee.name === APIM_CALL_NAME &&
+        !scopeHasBinding(scope, APIM_CALL_NAME) &&
+        typeof node.callee.start === 'number' &&
+        typeof node.callee.end === 'number'
       ) {
         replacements.push({
           start: node.callee.start,
@@ -337,9 +292,8 @@ function walkAst(
     if (key === 'type' || key === 'start' || key === 'end') continue
     if (!value) continue
     if (Array.isArray(value)) {
-      value.forEach((child) => {
-        if (child && typeof child === 'object')
-          walkAst(child, scope, replacements)
+      value.forEach(child => {
+        if (child && typeof child === 'object') walkAst(child, scope, replacements)
       })
       continue
     }
@@ -353,7 +307,7 @@ function applyReplacements(code: string, replacements: Replacement[]) {
   const sorted = [...replacements].sort((a, b) => b.start - a.start)
   let result = code
 
-  sorted.forEach((replacement) => {
+  sorted.forEach(replacement => {
     result = `${result.slice(0, replacement.start)}${replacement.value}${result.slice(replacement.end)}`
   })
 
@@ -395,10 +349,7 @@ export function createApimToUseFetchPlugin(): Plugin {
           const { descriptor } = parseVueSfc(code, { filename: cleanId })
           const replacements: Replacement[] = []
 
-          const scriptBlocks = [
-            descriptor.script,
-            descriptor.scriptSetup,
-          ].filter(isScriptBlock)
+          const scriptBlocks = [descriptor.script, descriptor.scriptSetup].filter(isScriptBlock)
           for (const block of scriptBlocks) {
             const transformed = await transformScript(
               block.content,
@@ -427,8 +378,7 @@ export function createApimToUseFetchPlugin(): Plugin {
           code: nextCode,
           map: null,
         }
-      }
-      catch (error) {
+      } catch (error) {
         this.warn(
           `[apim] Failed to rewrite apim() in ${cleanId}: ${error instanceof Error ? error.message : String(error)}`,
         )

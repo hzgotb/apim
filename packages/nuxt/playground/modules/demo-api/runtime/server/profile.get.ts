@@ -1,3 +1,5 @@
+import { defineEventHandler, getQuery } from 'h3'
+
 /**
  * 当前 handler 的静态请求与响应契约。
  *
@@ -17,13 +19,12 @@ export interface ApiModuleMeta {
   }
 }
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(event => {
   const query = getQuery(event)
   const name = typeof query.name === 'string' ? query.name : 'apim'
 
   return {
     message: `Hello, ${name}!`,
-    source:
-      'packages/nuxt/playground/modules/demo-api/runtime/server/profile.get.ts',
+    source: 'packages/nuxt/playground/modules/demo-api/runtime/server/profile.get.ts',
   } satisfies ApiModuleMeta['res']
 })

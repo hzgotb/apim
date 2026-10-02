@@ -4,18 +4,14 @@ import type {
   AvailableRouterMethod as _AvailableRouterMethod,
   NitroFetchRequest,
 } from 'nitropack/types'
-import type {
-  ResponseType as _ResponseType,
-  FetchError,
-  FetchOptions,
-} from 'ofetch'
+import type { ResponseType as _ResponseType, FetchError, FetchOptions } from 'ofetch'
 import type { MaybeRefOrGetter, MultiWatchSources, Ref } from 'vue'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface InternalApiPayload {}
 
-type PickFrom<T, K extends string[]>
-  = T extends Array<any>
+type PickFrom<T, K extends string[]> =
+  T extends Array<any>
     ? T
     : T extends Record<string, any>
       ? keyof T extends K[number]
@@ -24,18 +20,16 @@ type PickFrom<T, K extends string[]>
           ? T
           : Pick<T, K[number]>
       : T
-type KeysOf<T> = Array<
-  T extends T ? (keyof T extends string ? keyof T : never) : never
->
-type AvailableRouterMethod<R extends NitroFetchRequest>
-  = | _AvailableRouterMethod<R>
-    | Uppercase<_AvailableRouterMethod<R>>
+type KeysOf<T> = Array<T extends T ? (keyof T extends string ? keyof T : never) : never>
+type AvailableRouterMethod<R extends NitroFetchRequest> =
+  | _AvailableRouterMethod<R>
+  | Uppercase<_AvailableRouterMethod<R>>
 type ComputedOptions<T> = {
   [K in keyof T]: T[K] extends () => unknown
     ? T[K]
     : T[K] extends Record<string, unknown>
       ? ComputedOptions<T[K]> | Ref<T[K]> | T[K]
-      : Ref<T[K]> | T[K];
+      : Ref<T[K]> | T[K]
 }
 interface NitroFetchOptions<
   R extends NitroFetchRequest,
@@ -53,33 +47,30 @@ type ComputedFetchOptions<
 type RouterMethod = Lowercase<HTTPMethod>
 type RouteKey = Extract<keyof InternalApiPayload, string>
 type ApimField = 'body' | 'query' | 'res'
-type DefaultRequestSchema = { body?: never, query?: never }
+type DefaultRequestSchema = { body?: never; query?: never }
 type NormalizeMethod<M extends string> = Lowercase<M> & RouterMethod
 type MatchedRoute<Route extends string> = Extract<Route, RouteKey>
-type RouteMethods<Route extends string>
-  = MatchedRoute<Route> extends infer R
+type RouteMethods<Route extends string> =
+  MatchedRoute<Route> extends infer R
     ? R extends RouteKey
       ? Exclude<Extract<keyof InternalApiPayload[R], string>, 'default'>
       : never
     : never
-type DefaultRouteMethod<Route extends string, Fallback extends RouterMethod>
-  = 'get' extends RouteMethods<Route>
+type DefaultRouteMethod<Route extends string, Fallback extends RouterMethod> =
+  'get' extends RouteMethods<Route>
     ? 'get'
     : Extract<RouteMethods<Route>, RouterMethod> extends infer Method
       ? Method extends RouterMethod
         ? Method
         : Fallback
       : Fallback
-type RouteSchema<Route extends string, Method extends RouterMethod, Default>
-  = MatchedRoute<Route> extends infer R
+type RouteSchema<Route extends string, Method extends RouterMethod, Default> =
+  MatchedRoute<Route> extends infer R
     ? R extends RouteKey
       ? Method extends keyof InternalApiPayload[R]
         ? InternalApiPayload[R][Method]
         : 'default' extends keyof InternalApiPayload[R]
-          ? InternalApiPayload[R][Extract<
-            'default',
-            keyof InternalApiPayload[R]
-          >]
+          ? InternalApiPayload[R][Extract<'default', keyof InternalApiPayload[R]>]
           : Default
       : Default
     : Default
@@ -88,18 +79,15 @@ type TypedRouteField<
   Field extends ApimField,
   Method extends RouterMethod,
   Default = never,
->
-  = RouteSchema<Route, Method, Record<string, never>> extends infer Schema
+> =
+  RouteSchema<Route, Method, Record<string, never>> extends infer Schema
     ? Schema extends Record<string, unknown>
       ? Field extends keyof Schema
         ? Schema[Field]
         : Default
       : Default
     : Default
-type TypedRequestSchema<
-  Route,
-  Method extends RouterMethod,
-> = Route extends string
+type TypedRequestSchema<Route, Method extends RouterMethod> = Route extends string
   ? RouteSchema<Route, Method, DefaultRequestSchema> extends infer Schema
     ? Schema extends { res?: unknown }
       ? Omit<Schema, 'res'>
@@ -112,10 +100,8 @@ type FetchPayload<
 > = ReqT extends string
   ? TypedRequestSchema<ReqT, NormalizeMethod<Extract<M, string>>>
   : DefaultRequestSchema
-type DefaultApimMethod<ReqT extends NitroFetchRequest>
-  = 'get' extends AvailableRouterMethod<ReqT>
-    ? 'get'
-    : AvailableRouterMethod<ReqT>
+type DefaultApimMethod<ReqT extends NitroFetchRequest> =
+  'get' extends AvailableRouterMethod<ReqT> ? 'get' : AvailableRouterMethod<ReqT>
 
 export type ApimQuery<
   Route extends string,
@@ -132,11 +118,11 @@ export type ApimRes<
   Method extends AvailableRouterMethod<ReqT> = DefaultApimMethod<ReqT>,
 > = ReqT extends string
   ? TypedRouteField<
-    ReqT,
-    'res',
-    NormalizeMethod<Extract<Method, string>>,
-    FetchResult<ReqT, Method>
-  >
+      ReqT,
+      'res',
+      NormalizeMethod<Extract<Method, string>>,
+      FetchResult<ReqT, Method>
+    >
   : FetchResult<ReqT, Method>
 
 export interface ApimOpts<
@@ -148,8 +134,8 @@ export interface ApimOpts<
   M extends AvailableRouterMethod<R> = AvailableRouterMethod<R>,
 >
   extends
-  Omit<AsyncDataOptions<ResT, DataT, PickKeys, DefaultT>, 'watch'>,
-  Omit<ComputedFetchOptions<R, M, DataT>, 'timeout' | 'body' | 'query'> {
+    Omit<AsyncDataOptions<ResT, DataT, PickKeys, DefaultT>, 'watch'>,
+    Omit<ComputedFetchOptions<R, M, DataT>, 'timeout' | 'body' | 'query'> {
   key?: MaybeRefOrGetter<string>
   $fetch?: typeof globalThis.$fetch
   watch?: MultiWatchSources | false
@@ -170,8 +156,8 @@ export function apim<
   DefaultT = undefined,
 >(
   request: Ref<ReqT> | ReqT | (() => ReqT),
-  opts?: ComputedOptions<FetchPayload<ReqT, Method>>
-    & ApimOpts<_ResT, DataT, PickKeys, DefaultT, ReqT, Method>,
+  opts?: ComputedOptions<FetchPayload<ReqT, Method>> &
+    ApimOpts<_ResT, DataT, PickKeys, DefaultT, ReqT, Method>,
 ): AsyncData<PickFrom<DataT, PickKeys> | DefaultT, ErrorT | undefined>
 export function apim<
   ResT = void,
@@ -188,7 +174,7 @@ export function apim<
   DefaultT = DataT,
 >(
   request: Ref<ReqT> | ReqT | (() => ReqT),
-  opts?: ComputedOptions<FetchPayload<ReqT, Method>>
-    & ApimOpts<_ResT, DataT, PickKeys, DefaultT, ReqT, Method>,
+  opts?: ComputedOptions<FetchPayload<ReqT, Method>> &
+    ApimOpts<_ResT, DataT, PickKeys, DefaultT, ReqT, Method>,
 ): AsyncData<PickFrom<DataT, PickKeys> | DefaultT, ErrorT | undefined>
 export function apim(): any {}

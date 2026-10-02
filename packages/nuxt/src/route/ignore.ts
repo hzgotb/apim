@@ -30,16 +30,12 @@ function assertValidIgnorePatterns(
 
     if (scope === 'routeGroup' && index === 0) return
 
-    const label = scope === 'collection'
-      ? 'collection ignore'
-      : 'routeGroup ignore'
-    const position = scope === 'collection'
-      ? ''
-      : ' outside the first position'
+    const label = scope === 'collection' ? 'collection ignore' : 'routeGroup ignore'
+    const position = scope === 'collection' ? '' : ' outside the first position'
 
     throw new Error(
-      `[apim] Invalid ${label}${position}${formatContext(context)}: `
-      + `'!...' is only allowed as the first routeGroup ignore item.`,
+      `[apim] Invalid ${label}${position}${formatContext(context)}: ` +
+        `'!...' is only allowed as the first routeGroup ignore item.`,
     )
   })
 }
@@ -68,7 +64,7 @@ export function resolveRouteGroupIgnore(
 export function isIgnoredPath(path: string, ignore?: string[]): boolean {
   let ignored = false
 
-  ignore?.forEach((pattern) => {
+  ignore?.forEach(pattern => {
     const isNegated = pattern.startsWith('!')
     const candidate = isNegated ? pattern.slice(1) : pattern
 

@@ -4,9 +4,6 @@ export default defineNuxtConfig({
   compatibilityDate: 'latest',
   apim: {
     injectApimToGlobal: true,
-    collections: [
-      'modules/demo-api',
-      'modules/demo-explicit/demo-module.ts',
-    ],
+    collections: ['modules/demo-api', 'modules/demo-explicit/demo-module.ts'],
   },
 })

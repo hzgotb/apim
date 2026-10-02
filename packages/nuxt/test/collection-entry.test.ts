@@ -1,9 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import {
-  APIM_COLLECTION_KEY,
-  defineApiModule,
-  parseApiModuleEntry,
-} from '../src/collection/index'
+import { describe, expect, it } from 'vite-plus/test'
+import { APIM_COLLECTION_KEY, defineApiModule, parseApiModuleEntry } from '../src/collection/index'
 
 describe('defineApiModule entry', () => {
   it('wraps collection options in a keyed runtime entry', () => {
@@ -34,12 +30,9 @@ describe('defineApiModule entry', () => {
       ],
     }
 
-    expect(
-      parseApiModuleEntry(
-        defineApiModule(options),
-        '/virtual/demo.collection.ts',
-      ),
-    ).toEqual(options)
+    expect(parseApiModuleEntry(defineApiModule(options), '/virtual/demo.collection.ts')).toEqual(
+      options,
+    )
   })
 
   it('rejects plain object exports that are not keyed collection entries', () => {

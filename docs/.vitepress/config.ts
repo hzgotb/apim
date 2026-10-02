@@ -49,9 +49,7 @@ export default defineConfig({
       ],
     },
     search: { provider: 'local' },
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/hzgotb/apim' },
-    ],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/hzgotb/apim' }],
     footer: {
       message: 'Released under the MIT License.',
     },

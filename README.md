@@ -157,13 +157,13 @@ import { apim } from '#apim/apim'
 
 以下示例假设 `clientPrefix` 是 `/api`：
 
-| 文件 | 最终路由 |
-| --- | --- |
-| `profile.get.ts` | `GET /api/profile` |
-| `profile.post.ts` | `POST /api/profile` |
+| 文件                | 最终路由             |
+| ------------------- | -------------------- |
+| `profile.get.ts`    | `GET /api/profile`   |
+| `profile.post.ts`   | `POST /api/profile`  |
 | `users/[id].get.ts` | `GET /api/users/:id` |
-| `[...slug].ts` | `* /api/**:slug` |
-| `index.ts` | `* /api` |
+| `[...slug].ts`      | `* /api/**:slug`     |
+| `index.ts`          | `* /api`             |
 
 还支持 Nitro 风格的：
 
@@ -443,3 +443,30 @@ const { data } = await apim('/api/profile', {
 - 你想把一组 API 以 collection 的形式封装成 Nuxt 可复用模块
 - 你希望 `useFetch` 调用保留 Nuxt 运行时语义，但补上更明确的请求/响应类型
 - 你希望宿主应用能在接入第三方 collection 时，对路由冲突和排除策略有明确控制
+
+## 开发与验证
+
+仓库使用 Vite+ 1.0.0，保留 pnpm workspace、Nuxt 和 VitePress 的框架流程。
+本地工具链无需全局安装 `vp`；使用 Node.js 24.11+ 和 `pnpm@12.8.1`。
+
+```bash
+pnpm install --frozen-lockfile
+pnpm exec vp check
+pnpm exec vp test run
+pnpm exec vp run --workspace-root test:types
+pnpm exec vp run --workspace-root build
+pnpm exec vp run --workspace-root test:consumers
+pnpm exec vp run --workspace-root dev:build
+pnpm exec vp run --workspace-root docs:build
+```
+
+`build` 调度两个库的 `vp pack`，并保留 Nuxt 声明生成步骤。
+`test:consumers` 需要先构建库产物。
+
+开发 playground 使用 `pnpm exec vp run --workspace-root dev`，文档使用
+`pnpm exec vp run --workspace-root docs:dev`。`vp dev` / `vp build` 直接调用 Vite，
+不替代这里的 Nuxt / VitePress 命令；`vp test` 是内置测试工具，`vp run test`
+执行项目的同名脚本。`packageManager` 决定 `vp install` / `vp add` / `vp remove`
+使用的包管理器。
+
+迁移详情、兼容设置清理和验证记录见 [TOOLCHAIN.md](./TOOLCHAIN.md)。

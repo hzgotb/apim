@@ -1,73 +1,45 @@
 <template>
   <main class="playground">
     <header class="hero">
-      <p class="eyebrow">
-        apim playground
-      </p>
+      <p class="eyebrow">apim playground</p>
       <h1>Local interface module smoke test</h1>
       <p class="intro">
-        The playground loads one collection from a directory ref and another from
-        an explicit <code>.ts</code> file ref. This page uses <code>apim()</code>
-        so the current build can exercise route scanning, generated payload types,
-        and both <code>apim.collections</code> resolution modes.
+        The playground loads one collection from a directory ref and another from an explicit
+        <code>.ts</code> file ref. This page uses <code>apim()</code> so the current build can
+        exercise route scanning, generated payload types, and both
+        <code>apim.collections</code> resolution modes.
       </p>
     </header>
 
     <section class="controls">
       <label>
         <span>Profile name</span>
-        <input
-          v-model="profileName"
-          type="text"
-        >
+        <input v-model="profileName" type="text" />
       </label>
 
       <label>
         <span>Echo message</span>
-        <input
-          v-model="echoMessage"
-          type="text"
-        >
+        <input v-model="echoMessage" type="text" />
       </label>
 
       <label>
         <span>Repeat</span>
-        <input
-          v-model.number="echoRepeat"
-          type="number"
-          min="1"
-          max="3"
-        >
+        <input v-model.number="echoRepeat" type="number" min="1" max="3" />
       </label>
 
       <label>
         <span>Explicit tag</span>
-        <input
-          v-model="explicitTag"
-          type="text"
-        >
+        <input v-model="explicitTag" type="text" />
       </label>
 
-      <button
-        type="button"
-        @click="refreshAll"
-      >
-        Refresh requests
-      </button>
+      <button type="button" @click="refreshAll">Refresh requests</button>
     </section>
 
     <section class="grid">
       <article class="card">
-        <p class="label">
-          GET /demo/profile
-        </p>
-        <p class="status">
-          Status: {{ profileStatus }}
-        </p>
-        <p
-          v-if="profileError"
-          class="error"
-        >
+        <p class="label">GET /demo/profile</p>
+        <p class="status">Status: {{ profileStatus }}</p>
+        <p v-if="profileError" class="error">
           {{ profileError.message }}
         </p>
         <template v-else-if="profileData">
@@ -81,39 +53,23 @@
       </article>
 
       <article class="card">
-        <p class="label">
-          POST /demo/echo
-        </p>
-        <p class="status">
-          Status: {{ echoStatus }}
-        </p>
-        <p
-          v-if="echoError"
-          class="error"
-        >
+        <p class="label">POST /demo/echo</p>
+        <p class="status">Status: {{ echoStatus }}</p>
+        <p v-if="echoError" class="error">
           {{ echoError.message }}
         </p>
         <template v-else-if="echoData">
           <p class="result">
             {{ echoData.echoed.join(' · ') }}
           </p>
-          <p class="meta">
-            total: {{ echoData.total }}
-          </p>
+          <p class="meta">total: {{ echoData.total }}</p>
         </template>
       </article>
 
       <article class="card">
-        <p class="label">
-          GET /demo-explicit/status
-        </p>
-        <p class="status">
-          Status: {{ explicitStatus }}
-        </p>
-        <p
-          v-if="explicitError"
-          class="error"
-        >
+        <p class="label">GET /demo-explicit/status</p>
+        <p class="status">Status: {{ explicitStatus }}</p>
+        <p v-if="explicitError" class="error">
           {{ explicitError.message }}
         </p>
         <template v-else-if="explicitData">
@@ -123,9 +79,7 @@
           <p class="meta">
             {{ explicitData.entry }}
           </p>
-          <p class="meta">
-            route: {{ explicitData.route }}
-          </p>
+          <p class="meta">route: {{ explicitData.route }}</p>
         </template>
       </article>
     </section>
@@ -177,11 +131,7 @@ const {
 })
 
 async function refreshAll() {
-  await Promise.all([
-    refreshProfile(),
-    refreshEcho(),
-    refreshExplicit(),
-  ])
+  await Promise.all([refreshProfile(), refreshEcho(), refreshExplicit()])
 }
 </script>
 
@@ -228,9 +178,7 @@ h1 {
   padding: 20px;
   border: 1px solid #d1d5db;
   border-radius: 20px;
-  background:
-    linear-gradient(135deg, rgba(13, 148, 136, 0.1), rgba(14, 165, 233, 0.08)),
-    #ffffff;
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.1), rgba(14, 165, 233, 0.08)), #ffffff;
 }
 
 label {

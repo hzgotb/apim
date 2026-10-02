@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+import type { CollectionHandler, HostHandler } from '../src/route/conflict'
 import { genApimTemplate } from '../src/generator/templates'
 import {
   assertNoComparableRouteConflicts,
@@ -10,17 +11,17 @@ import {
 } from '../src/route/conflict'
 
 const profileHandler = fileURLToPath(
-  new URL(
-    '../playground/modules/demo-api/runtime/server/profile.get.ts',
-    import.meta.url,
-  ),
+  new URL('../playground/modules/demo-api/runtime/server/profile.get.ts', import.meta.url),
 )
+
+// Nitro supplies metadata beyond the fields used for route comparisons.
+function hostHandler(handler: HostHandler & { lazy: true; middleware: false }) {
+  return toComparableHostHandler(handler)
+}
 
 describe('route signatures', () => {
   it('formats explicit methods in uppercase and methodless routes as *', () => {
-    expect(toRouteSignature({ route: '/api/profile', method: 'get' })).toBe(
-      'GET /api/profile',
-    )
+    expect(toRouteSignature({ route: '/api/profile', method: 'get' })).toBe('GET /api/profile')
     expect(toRouteSignature({ route: '/api/profile' })).toBe('* /api/profile')
   })
 })
@@ -28,7 +29,7 @@ describe('route signatures', () => {
 describe('host owner labels', () => {
   it('labels server/api handlers as host server/api', () => {
     expect(
-      toComparableHostHandler({
+      hostHandler({
         handler: '/abs/app/server/api/profile.get.ts',
         route: '/api/profile',
         method: 'get',
@@ -43,7 +44,7 @@ describe('host owner labels', () => {
 
   it('labels server/routes handlers as host server/routes', () => {
     expect(
-      toComparableHostHandler({
+      hostHandler({
         handler: '/abs/app/server/routes/foo.get.ts',
         route: '/foo',
         method: 'get',
@@ -59,7 +60,7 @@ describe('host owner labels', () => {
 
 describe('conflict rules', () => {
   it('rejects host GET vs collection GET conflicts', () => {
-    const host = toComparableHostHandler({
+    const host = hostHandler({
       handler: '/abs/app/server/api/profile.get.ts',
       route: '/api/profile',
       method: 'get',
@@ -75,13 +76,13 @@ describe('conflict rules', () => {
       middleware: false,
     })
 
-    expect(() =>
-      assertNoComparableRouteConflicts([host, collection]),
-    ).toThrow(/host server\/api[\s\S]*demo-collection/)
+    expect(() => assertNoComparableRouteConflicts([host, collection])).toThrow(
+      /host server\/api[\s\S]*demo-collection/,
+    )
   })
 
   it('rejects host methodless vs collection GET conflicts', () => {
-    const host = toComparableHostHandler({
+    const host = hostHandler({
       handler: '/abs/app/server/api/profile.ts',
       route: '/api/profile',
       lazy: true,
@@ -96,13 +97,11 @@ describe('conflict rules', () => {
       middleware: false,
     })
 
-    expect(() =>
-      assertNoComparableRouteConflicts([host, collection]),
-    ).toThrow(/\* \/api\/profile/)
+    expect(() => assertNoComparableRouteConflicts([host, collection])).toThrow(/\* \/api\/profile/)
   })
 
   it('allows host GET vs collection POST on the same route', () => {
-    const host = toComparableHostHandler({
+    const host = hostHandler({
       handler: '/abs/app/server/api/profile.get.ts',
       route: '/api/profile',
       method: 'get',
@@ -118,15 +117,13 @@ describe('conflict rules', () => {
       middleware: false,
     })
 
-    expect(() =>
-      assertNoComparableRouteConflicts([host, collection]),
-    ).not.toThrow()
+    expect(() => assertNoComparableRouteConflicts([host, collection])).not.toThrow()
   })
 })
 
 describe('exclude filtering', () => {
   it('drops excluded collection handlers before conflict checks and registration', () => {
-    const handlers = [
+    const handlers: CollectionHandler[] = [
       {
         collectionName: 'demo-collection',
         handler: '/abs/modules/demo/runtime/server/profile.get.ts',
@@ -137,9 +134,7 @@ describe('exclude filtering', () => {
       },
     ]
 
-    expect(
-      filterExcludedCollectionHandlers(handlers, ['GET /api/profile']),
-    ).toEqual([])
+    expect(filterExcludedCollectionHandlers(handlers, ['GET /api/profile'])).toEqual([])
   })
 
   it('keeps excluded handlers out of the generated apim template', async () => {
@@ -157,8 +152,6 @@ describe('exclude filtering', () => {
       ['GET /api/profile'],
     )
 
-    await expect(genApimTemplate(handlers, false)).resolves.not.toContain(
-      '\'/api/profile\'',
-    )
+    await expect(genApimTemplate(handlers, false)).resolves.not.toContain("'/api/profile'")
   })
 })

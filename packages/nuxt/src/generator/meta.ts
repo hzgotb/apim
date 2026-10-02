@@ -30,13 +30,10 @@ function getMetaFieldsFromMembers(members: unknown[]): MetaField[] {
       // export interface ApiModuleMeta { body: Foo; res: Bar }
       if (member?.type !== 'TSPropertySignature') return ''
       if (member.key?.type === 'Identifier') return member.key.name as string
-      if (typeof member.key?.value === 'string')
-        return member.key.value as string
+      if (typeof member.key?.value === 'string') return member.key.value as string
       return ''
     })
-    .filter((name): name is MetaField =>
-      metaFields.has(name as MetaField),
-    )
+    .filter((name): name is MetaField => metaFields.has(name as MetaField))
 }
 
 /**
@@ -59,8 +56,8 @@ function getMetaFields(node: any): MetaField[] {
   // 也支持 type literal 写法：
   // export type ApiModuleMeta = { body: Body; res: Res }
   if (
-    declaration.type === 'TSTypeAliasDeclaration'
-    && declaration.typeAnnotation?.type === 'TSTypeLiteral'
+    declaration.type === 'TSTypeAliasDeclaration' &&
+    declaration.typeAnnotation?.type === 'TSTypeLiteral'
   ) {
     return getMetaFieldsFromMembers(declaration.typeAnnotation.members ?? [])
   }
@@ -79,9 +76,7 @@ export function clearMetaFieldCache(): void {
 /**
  * 作用：读取并解析一个 handler 文件，返回它导出的 `ApiModuleMeta` 字段列表。
  */
-export async function getExportedMetaFields(
-  filePath: string,
-): Promise<MetaField[]> {
+export async function getExportedMetaFields(filePath: string): Promise<MetaField[]> {
   // 命中缓存时直接复用正在进行或已经完成的解析任务。
   if (metaFieldCache.has(filePath)) {
     if (import.meta.dev) {
@@ -110,8 +105,7 @@ export async function getExportedMetaFields(
         })
 
       return Array.from(fields)
-    }
-    catch (error) {
+    } catch (error) {
       // 解析失败时返回空数组，让上层把这个 handler 当成“没有可提取的 ApiModuleMeta”处理。
       console.warn(`[apim] Failed to parse file: ${filePath}`, error)
       return []

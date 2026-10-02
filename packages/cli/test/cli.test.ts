@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
 import { fileURLToPath } from 'node:url'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 const execFileAsync = promisify(execFile)
 const cliPath = fileURLToPath(new URL('../src/apim.mjs', import.meta.url))
@@ -18,9 +18,7 @@ async function createTempRoot() {
 }
 
 afterEach(async () => {
-  await Promise.all(
-    tempDirs.splice(0).map(dir => rm(dir, { force: true, recursive: true })),
-  )
+  await Promise.all(tempDirs.splice(0).map(dir => rm(dir, { force: true, recursive: true })))
 })
 
 describe('apim cli', () => {
@@ -37,7 +35,7 @@ describe('apim cli', () => {
     const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'))
 
     expect(packageJson.scripts).toMatchObject({
-      build: 'tsdown',
+      build: 'vp pack',
       prepack: 'pnpm build',
     })
   })
@@ -50,16 +48,11 @@ describe('apim cli', () => {
       { cwd: rootDir },
     )
 
-    const collection = await readFile(
-      join(rootDir, 'modules/demo-api/collection.ts'),
-      'utf8',
-    )
+    const collection = await readFile(join(rootDir, 'modules/demo-api/collection.ts'), 'utf8')
 
     expect(collection).toContain(`name: "demo-api"`)
     expect(collection).toContain(`clientPrefix: "/demo-api"`)
-    expect(stdout).toContain(
-      'derived from the last segment of "modules/demo-api"',
-    )
+    expect(stdout).toContain('derived from the last segment of "modules/demo-api"')
 
     const gitkeep = await readFile(
       join(rootDir, 'modules/demo-api/runtime/server/.gitkeep'),
@@ -93,11 +86,9 @@ describe('apim cli', () => {
     await writeFile(join(targetDir, 'existing.txt'), 'occupied', 'utf8')
 
     await expect(
-      execFileAsync(
-        process.execPath,
-        [cliPath, 'collection', 'modules/demo-api'],
-        { cwd: rootDir },
-      ),
+      execFileAsync(process.execPath, [cliPath, 'collection', 'modules/demo-api'], {
+        cwd: rootDir,
+      }),
     ).rejects.toMatchObject({
       stderr: expect.stringContaining('already exists and is not empty'),
     })

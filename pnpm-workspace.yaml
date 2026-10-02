@@ -4,44 +4,52 @@ packages:
   - packages/nuxt/playground
 
 catalog:
-  "@nuxt/kit": ^4.5.2
-  "@nuxt/nitro-server": ^4.5.2
-  "@nuxt/devtools": ^3.4.2
-  "@nuxt/eslint-config": ^1.17.0
-  "@nuxt/schema": ^4.5.2
-  "@nuxt/test-utils": ^4.3.2
-  "@types/node": ^24.19.0
-  "@vue/compiler-sfc": ^3.5.43
+  '@nuxt/kit': ^4.5.2
+  '@nuxt/nitro-server': ^4.5.2
+  '@nuxt/devtools': ^3.4.2
+  '@nuxt/eslint-config': ^1.17.0
+  '@nuxt/schema': ^4.5.2
+  '@nuxt/test-utils': ^4.3.2
+  '@types/node': ^24.19.0
+  '@vue/compiler-sfc': ^3.5.43
   changelogen: ^0.6.2
   eslint: ^10.11.0
+  eslint-config-prettier: ^10.1.8
   h3: 2.0.1-rc.32
   nuxt: ^4.5.2
   oxc-parser: ^0.152.0
   pathe: ^2.0.3
   tinyglobby: ^0.2.17
-  tsdown: ^0.23.0
   typescript: ~6.0.3
   ufo: ^1.6.4
-  vitest: ^5.0.3
+  vitest: 5.0.1
   vue-tsc: ^3.3.11
-  vite: ^8.3.1
+  vite: npm:@voidzero-dev/vite-plus-core@1.0.0
   vue: ^3.5.43
   bumpp: ^12.3.0
   jiti: ^2.7.0
   nitropack: ^2.13.4
   ofetch: ^1.5.1
   vitepress: ^2.0.0-alpha.20
-  vite-plus: ^1.0.0
+  vite-plus: 1.0.0
 
 allowBuilds:
-  "@parcel/watcher": true
+  '@parcel/watcher': true
   esbuild: true
   unrs-resolver: true
 
 overrides:
-  vite: ^8.3.1
+  vite@*: 'catalog:'
+  vitest@*: 'catalog:'
 
 minimumReleaseAgeExclude:
-  - "@vitest/mocker@5.0.3"
-  - "@vitest/spy@5.0.3"
+  - '@vitest/mocker@5.0.3'
+  - '@vitest/spy@5.0.3'
   - vitest@5.0.3
+peerDependencyRules:
+  allowAny:
+    - vite
+    - vitest
+  allowedVersions:
+    vite: '*'
+    vitest: '*'

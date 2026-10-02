@@ -1,3 +1,5 @@
+import { defineEventHandler, getQuery } from 'h3'
+
 /**
  * 当前 handler 的静态请求与响应契约。
  *
@@ -18,7 +20,7 @@ export interface ApiModuleMeta {
   }
 }
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(event => {
   const query = getQuery(event)
   const tag = typeof query.tag === 'string' ? query.tag : 'explicit-ts-file'
 

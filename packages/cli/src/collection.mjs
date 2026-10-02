@@ -1,12 +1,5 @@
 import { lstat, mkdir, readdir, writeFile } from 'node:fs/promises'
-import {
-  basename,
-  dirname,
-  isAbsolute,
-  relative,
-  resolve,
-  sep,
-} from 'node:path'
+import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path'
 
 const TYPESCRIPT_FILE_RE = /\.[cm]?[jt]sx?$/i
 
@@ -31,11 +24,7 @@ function toPosixPath(value) {
  * @returns {boolean} - True if the path would escape the root, false otherwise
  */
 function isOutsideRoot(relativePath) {
-  return (
-    relativePath === '..'
-    || relativePath.startsWith(`..${sep}`)
-    || isAbsolute(relativePath)
-  )
+  return relativePath === '..' || relativePath.startsWith(`..${sep}`) || isAbsolute(relativePath)
 }
 
 /**
@@ -119,9 +108,7 @@ export function deriveCollectionName(targetPath) {
   }
 
   if (TYPESCRIPT_FILE_RE.test(name)) {
-    throw new Error(
-      '[apim] Target path must be a directory path, not a TypeScript file path.',
-    )
+    throw new Error('[apim] Target path must be a directory path, not a TypeScript file path.')
   }
 
   return name
@@ -142,15 +129,11 @@ export function resolveTargetDirectory(targetPath, rootDir = process.cwd()) {
   const trimmedTargetPath = targetPath.trim()
 
   if (!trimmedTargetPath) {
-    throw new Error(
-      '[apim] Missing target path. Pass a project-relative directory path.',
-    )
+    throw new Error('[apim] Missing target path. Pass a project-relative directory path.')
   }
 
   if (isAbsolute(trimmedTargetPath)) {
-    throw new Error(
-      '[apim] Target path must be relative to the Nuxt app root.',
-    )
+    throw new Error('[apim] Target path must be relative to the Nuxt app root.')
   }
 
   const resolvedTarget = resolve(rootDir, trimmedTargetPath)
@@ -181,25 +164,15 @@ export async function assertTargetDirectoryIsWritable(targetDir, targetLabel) {
     const stats = await lstat(targetDir)
 
     if (!stats.isDirectory()) {
-      throw new Error(
-        `[apim] Target "${targetLabel}" already exists and is not a directory.`,
-      )
+      throw new Error(`[apim] Target "${targetLabel}" already exists and is not a directory.`)
     }
 
     const entries = await readdir(targetDir)
     if (entries.length > 0) {
-      throw new Error(
-        `[apim] Target "${targetLabel}" already exists and is not empty.`,
-      )
+      throw new Error(`[apim] Target "${targetLabel}" already exists and is not empty.`)
     }
-  }
-  catch (error) {
-    if (
-      error
-      && typeof error === 'object'
-      && 'code' in error
-      && error.code === 'ENOENT'
-    ) {
+  } catch (error) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
       return
     }
     throw error
@@ -262,10 +235,7 @@ export async function scaffoldCollection({
     template,
   })
 
-  await assertTargetDirectoryIsWritable(
-    target.resolvedTarget,
-    target.relativeTarget,
-  )
+  await assertTargetDirectoryIsWritable(target.resolvedTarget, target.relativeTarget)
   await mkdir(target.resolvedTarget, { recursive: true })
 
   const createdFiles = []

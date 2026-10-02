@@ -1,7 +1,7 @@
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join } from 'pathe'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { scanServerRoutes } from '../src/route/scan'
 
 type ResolveRouteGroupIgnore = (
@@ -12,7 +12,7 @@ type ResolveRouteGroupIgnore = (
 const tempRoots: string[] = []
 
 async function loadResolveRouteGroupIgnore() {
-  const mod = await import('../src/route/ignore').catch(() => ({}))
+  const mod = await import('../src/route/ignore')
   return mod.resolveRouteGroupIgnore as ResolveRouteGroupIgnore | undefined
 }
 
@@ -32,11 +32,7 @@ async function createFixture(files: Record<string, string>) {
 }
 
 afterEach(async () => {
-  await Promise.all(
-    tempRoots.splice(0).map(root =>
-      rm(root, { recursive: true, force: true }),
-    ),
-  )
+  await Promise.all(tempRoots.splice(0).map(root => rm(root, { recursive: true, force: true })))
 })
 
 describe('resolveRouteGroupIgnore', () => {
@@ -44,18 +40,14 @@ describe('resolveRouteGroupIgnore', () => {
     const resolveRouteGroupIgnore = await loadResolveRouteGroupIgnore()
 
     expect(resolveRouteGroupIgnore).toBeTypeOf('function')
-    expect(resolveRouteGroupIgnore?.(['**/types/**'], undefined)).toEqual([
-      '**/types/**',
-    ])
+    expect(resolveRouteGroupIgnore?.(['**/types/**'], undefined)).toEqual(['**/types/**'])
   })
 
   it('treats an empty routeGroup ignore array as inheriting collection ignore', async () => {
     const resolveRouteGroupIgnore = await loadResolveRouteGroupIgnore()
 
     expect(resolveRouteGroupIgnore).toBeTypeOf('function')
-    expect(resolveRouteGroupIgnore?.(['**/types/**'], [])).toEqual([
-      '**/types/**',
-    ])
+    expect(resolveRouteGroupIgnore?.(['**/types/**'], [])).toEqual(['**/types/**'])
   })
 
   it('appends routeGroup ignore patterns after collection ignore by default', async () => {
@@ -63,15 +55,8 @@ describe('resolveRouteGroupIgnore', () => {
 
     expect(resolveRouteGroupIgnore).toBeTypeOf('function')
     expect(
-      resolveRouteGroupIgnore?.(
-        ['**/types/**'],
-        ['**/*.draft.*', '!**/*.keep.draft.*'],
-      ),
-    ).toEqual([
-      '**/types/**',
-      '**/*.draft.*',
-      '!**/*.keep.draft.*',
-    ])
+      resolveRouteGroupIgnore?.(['**/types/**'], ['**/*.draft.*', '!**/*.keep.draft.*']),
+    ).toEqual(['**/types/**', '**/*.draft.*', '!**/*.keep.draft.*'])
   })
 
   it('drops collection inheritance when routeGroup ignore starts with !...', async () => {
@@ -79,27 +64,19 @@ describe('resolveRouteGroupIgnore', () => {
 
     expect(resolveRouteGroupIgnore).toBeTypeOf('function')
     expect(resolveRouteGroupIgnore?.(['**/types/**'], ['!...'])).toEqual([])
-    expect(
-      resolveRouteGroupIgnore?.(
-        ['**/types/**'],
-        ['!...', '**/*.draft.*'],
-      ),
-    ).toEqual(['**/*.draft.*'])
+    expect(resolveRouteGroupIgnore?.(['**/types/**'], ['!...', '**/*.draft.*'])).toEqual([
+      '**/*.draft.*',
+    ])
   })
 
   it('rejects !... inside collection ignore or outside the first routeGroup position', async () => {
     const resolveRouteGroupIgnore = await loadResolveRouteGroupIgnore()
 
     expect(resolveRouteGroupIgnore).toBeTypeOf('function')
-    expect(() => resolveRouteGroupIgnore?.(['!...'], undefined)).toThrow(
+    expect(() => resolveRouteGroupIgnore?.(['!...'], undefined)).toThrow(/!.../)
+    expect(() => resolveRouteGroupIgnore?.(['**/types/**'], ['**/*.draft.*', '!...'])).toThrow(
       /!.../,
     )
-    expect(() =>
-      resolveRouteGroupIgnore?.(
-        ['**/types/**'],
-        ['**/*.draft.*', '!...'],
-      ),
-    ).toThrow(/!.../)
   })
 
   it('lets later negated patterns re-include files ignored earlier', async () => {
@@ -113,10 +90,7 @@ describe('resolveRouteGroupIgnore', () => {
     expect(resolveRouteGroupIgnore).toBeTypeOf('function')
 
     const handlers = await scanServerRoutes(root, 'runtime/server', '/demo', {
-      ignore: resolveRouteGroupIgnore?.(
-        ['**/types/**'],
-        ['!**/types/keep.ts'],
-      ),
+      ignore: resolveRouteGroupIgnore?.(['**/types/**'], ['!**/types/keep.ts']),
     })
 
     expect(handlers.map(handler => basename(handler.handler)).sort()).toEqual([

@@ -22,15 +22,11 @@ function normalizeMethod(method?: string) {
   return method?.toLowerCase()
 }
 
-export function toRouteSignature(
-  handler: Pick<ComparableHandler, 'route' | 'method'>,
-): string {
+export function toRouteSignature(handler: Pick<ComparableHandler, 'route' | 'method'>): string {
   return `${normalizeMethod(handler.method)?.toUpperCase() ?? '*'} ${handler.route}`
 }
 
-export function toComparableCollectionHandler(
-  handler: CollectionHandler,
-): ComparableHandler {
+export function toComparableCollectionHandler(handler: CollectionHandler): ComparableHandler {
   return {
     source: 'collection',
     ownerLabel: handler.collectionName,
@@ -40,9 +36,7 @@ export function toComparableCollectionHandler(
   }
 }
 
-export function toComparableHostHandler(
-  handler: HostHandler,
-): ComparableHandler {
+export function toComparableHostHandler(handler: HostHandler): ComparableHandler {
   const ownerLabel = handler.handler.includes('/server/api/')
     ? 'host server/api'
     : handler.handler.includes('/server/routes/')
@@ -78,8 +72,8 @@ export function assertNoComparableRouteConflicts(
 ): void {
   const visited: ComparableHandler[] = []
 
-  handlers.forEach((handler) => {
-    const conflict = visited.find((existing) => {
+  handlers.forEach(handler => {
+    const conflict = visited.find(existing => {
       if (opts?.crossSourceOnly && existing.source === handler.source) {
         return false
       }
@@ -91,14 +85,15 @@ export function assertNoComparableRouteConflicts(
       return
     }
 
-    const methodLabel = !conflict.method || !handler.method
-      ? '*'
-      : normalizeMethod(handler.method)?.toUpperCase() ?? '*'
+    const methodLabel =
+      !conflict.method || !handler.method
+        ? '*'
+        : (normalizeMethod(handler.method)?.toUpperCase() ?? '*')
 
     throw new Error(
-      `[apim] Route conflict on ${methodLabel} ${handler.route}: `
-      + `${conflict.ownerLabel} (${conflict.handler}) conflicts with `
-      + `${handler.ownerLabel} (${handler.handler}).`,
+      `[apim] Route conflict on ${methodLabel} ${handler.route}: ` +
+        `${conflict.ownerLabel} (${conflict.handler}) conflicts with ` +
+        `${handler.ownerLabel} (${handler.handler}).`,
     )
   })
 }

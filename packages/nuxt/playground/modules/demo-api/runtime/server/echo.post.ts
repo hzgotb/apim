@@ -1,3 +1,5 @@
+import { defineEventHandler, readBody } from 'h3'
+
 /**
  * 当前 handler 的静态请求与响应契约。
  *
@@ -18,7 +20,7 @@ export interface ApiModuleMeta {
   }
 }
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const body = await readBody<ApiModuleMeta['body']>(event)
   const repeat = Math.max(1, Math.min(3, body?.repeat ?? 1))
   const message = body?.message ?? ''

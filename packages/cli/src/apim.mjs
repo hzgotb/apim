@@ -89,9 +89,7 @@ async function main() {
   }
 
   if (!args.targetPath) {
-    throw new Error(
-      '[apim] Missing target path. Example: "apim collection modules/demo-api".',
-    )
+    throw new Error('[apim] Missing target path. Example: "apim collection modules/demo-api".')
   }
 
   const result = await scaffoldCollection({
@@ -105,7 +103,7 @@ async function main() {
   console.log(`[apim] Using clientPrefix "${result.clientPrefix}".`)
   console.log(`[apim] Template: ${result.template}.`)
   console.log('[apim] Created files:')
-  result.createdFiles.forEach((file) => {
+  result.createdFiles.forEach(file => {
     console.log(`  ${file}`)
   })
   console.log(
@@ -113,7 +111,7 @@ async function main() {
   )
 }
 
-main().catch((error) => {
+main().catch(error => {
   const message = error instanceof Error ? error.message : String(error)
   console.error(message)
   process.exitCode = 1

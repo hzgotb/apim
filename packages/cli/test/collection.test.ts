@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { buildCollectionFiles } from '../src/collection.mjs'
 
 describe('buildCollectionFiles', () => {
@@ -10,9 +10,7 @@ describe('buildCollectionFiles', () => {
     })
     const collectionFile = files.find(file => file.relativePath === 'collection.ts')
 
-    expect(collectionFile?.contents).toContain(
-      `ignore: ['**/types/**', '**/*.types.*']`,
-    )
+    expect(collectionFile?.contents).toContain(`ignore: ['**/types/**', '**/*.types.*']`)
     expect(collectionFile?.contents).toContain(
       `import { defineApiModule } from '@hzgotb/apim-nuxt'`,
     )

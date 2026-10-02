@@ -10,8 +10,8 @@ interface FileInfo {
   fullPath: string
 }
 
-const suffixRegex
-  = /(\.(?<method>connect|delete|get|head|options|patch|post|put|trace))?(\.(?<env>dev|prod|prerender))?$/
+const suffixRegex =
+  /(\.(?<method>connect|delete|get|head|options|patch|post|put|trace))?(\.(?<env>dev|prod|prerender))?$/
 
 // prettier-ignore
 type MatchedMethodSuffix = 'connect' | 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put' | 'trace'
@@ -41,14 +41,14 @@ function sanitizeRouteParam(name: string) {
 async function scanDir(
   rootDir: string,
   dir: string,
-  opts?: { ignore?: string[], logger?: { warn(message: string): void } },
+  opts?: { ignore?: string[]; logger?: { warn(message: string): void } },
 ): Promise<FileInfo[]> {
   const baseDir = join(rootDir, dir)
   const fileNames = await glob(GLOB_SCAN_PATTERN, {
     cwd: baseDir,
     dot: true,
     absolute: true,
-  }).catch((error) => {
+  }).catch(error => {
     if (error?.code === 'ENOTDIR') {
       opts?.logger?.warn(`Ignoring \`${baseDir}\`. It must be a directory.`)
       return []
@@ -78,16 +78,14 @@ async function scanRegex(
   })
 
   return fileNames
-    .map((fullPath) => {
+    .map(fullPath => {
       const relativePath = normalizePath(relative(rootDir, fullPath))
       if (isIgnoredPath(relativePath, opts?.ignore)) return null
 
       const match = matcher.exec(relativePath)
       if (!match || match.index !== 0) return null
 
-      const strippedPath = relativePath
-        .slice(match[0].length)
-        .replace(/^\/+/, '')
+      const strippedPath = relativePath.slice(match[0].length).replace(/^\/+/, '')
       if (!strippedPath) return null
 
       return {
@@ -102,7 +100,7 @@ async function scanRegex(
 async function scanFiles(
   rootDir: string,
   dir: string | RegExp,
-  opts?: { ignore?: string[], logger?: { warn(message: string): void } },
+  opts?: { ignore?: string[]; logger?: { warn(message: string): void } },
 ) {
   if (typeof dir === 'string') return scanDir(rootDir, dir, opts)
 
@@ -113,11 +111,11 @@ export async function scanServerRoutes(
   rootDir: string,
   dir: string | RegExp,
   prefix = '/',
-  opts?: { ignore?: string[], logger?: { warn(message: string): void } },
+  opts?: { ignore?: string[]; logger?: { warn(message: string): void } },
 ): Promise<ScannedServerRoute[]> {
   const files = await scanFiles(rootDir, dir, opts)
 
-  return files.map((file) => {
+  return files.map(file => {
     let route = file.path
       .replace(/\.[A-Z]+$/i, '')
       .replace(/\(([^(/\\]+)\)[/\\]/g, '')

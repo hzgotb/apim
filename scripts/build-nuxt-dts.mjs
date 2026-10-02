@@ -45,10 +45,10 @@ async function emitDeclaration(filePath) {
   }
 
   const sourceRelativePath = relative(sourceRoot, filePath)
-  const outputRelativePath = sourceRelativePath === 'runtime\\apim.ts'
-    || sourceRelativePath === 'runtime/apim.ts'
-    ? 'apim.d.ts'
-    : sourceRelativePath.replace(/\.ts$/, '.d.ts')
+  const outputRelativePath =
+    sourceRelativePath === 'runtime\\apim.ts' || sourceRelativePath === 'runtime/apim.ts'
+      ? 'apim.d.ts'
+      : sourceRelativePath.replace(/\.ts$/, '.d.ts')
   const outputPath = resolve(distRoot, outputRelativePath)
 
   await mkdir(dirname(outputPath), { recursive: true })

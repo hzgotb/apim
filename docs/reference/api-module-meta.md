@@ -12,11 +12,11 @@ export interface ApiModuleMeta {
 }
 ```
 
-| 字段 | 对应客户端位置 | 典型方法 | 作用 |
-| --- | --- | --- | --- |
-| `query` | `apim(url, { query })` | GET | 查询参数模型。 |
-| `body` | `apim(url, { body })` | POST、PUT、PATCH | 请求体模型。 |
-| `res` | `data` | 所有方法 | 成功响应模型。 |
+| 字段    | 对应客户端位置         | 典型方法         | 作用           |
+| ------- | ---------------------- | ---------------- | -------------- |
+| `query` | `apim(url, { query })` | GET              | 查询参数模型。 |
+| `body`  | `apim(url, { body })`  | POST、PUT、PATCH | 请求体模型。   |
+| `res`   | `data`                 | 所有方法         | 成功响应模型。 |
 
 字段都是可选的。只声明 `res` 的 GET handler 不会要求 query；只声明 `body` 的 POST handler 不会凭空生成 query。
 
@@ -35,7 +35,7 @@ export interface ApiModuleMeta {
   }
 }
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const body = await readBody<ApiModuleMeta['body']>(event)
   const repeat = Math.max(1, Math.min(3, body.repeat ?? 1))
 
@@ -83,20 +83,15 @@ const { data } = await apim('/api/echo', {
 `@hzgotb/apim-nuxt/apim` 还导出了几个可以在 composable、封装函数和组件 props 中复用的类型：
 
 ```ts
-import type {
-  ApimBody,
-  ApimOpts,
-  ApimQuery,
-  ApimRes,
-} from '@hzgotb/apim-nuxt/apim'
+import type { ApimBody, ApimOpts, ApimQuery, ApimRes } from '@hzgotb/apim-nuxt/apim'
 ```
 
-| 类型 | 默认方法 | 取值来源 | 典型用途 |
-| --- | --- | --- | --- |
-| `ApimQuery<Route, Method>` | GET | `ApiModuleMeta['query']` | 表单、筛选器和 query builder 的参数类型。 |
-| `ApimBody<Route, Method>` | POST | `ApiModuleMeta['body']` | mutation payload、表单提交和请求封装。 |
-| `ApimRes<Route, Method>` | 路由中的 GET，或第一个可用方法 | `ApiModuleMeta['res']` | composable 返回值和缓存层的响应类型。 |
-| `ApimOpts<ResT, DataT, ...>` | 无 | `AsyncDataOptions` + fetch options | 为通用请求封装保留 `key`、`watch`、`$fetch` 等选项。 |
+| 类型                         | 默认方法                       | 取值来源                           | 典型用途                                             |
+| ---------------------------- | ------------------------------ | ---------------------------------- | ---------------------------------------------------- |
+| `ApimQuery<Route, Method>`   | GET                            | `ApiModuleMeta['query']`           | 表单、筛选器和 query builder 的参数类型。            |
+| `ApimBody<Route, Method>`    | POST                           | `ApiModuleMeta['body']`            | mutation payload、表单提交和请求封装。               |
+| `ApimRes<Route, Method>`     | 路由中的 GET，或第一个可用方法 | `ApiModuleMeta['res']`             | composable 返回值和缓存层的响应类型。                |
+| `ApimOpts<ResT, DataT, ...>` | 无                             | `AsyncDataOptions` + fetch options | 为通用请求封装保留 `key`、`watch`、`$fetch` 等选项。 |
 
 例如，可以把一条 API 封装成业务函数，同时保持和 handler 相同的类型来源：
 
@@ -126,7 +121,7 @@ export interface ApiModuleMeta {
   res: CreateUserOutput
 }
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const body = await readBody<CreateUserInput>(event)
   // 在这里使用 schema.parse(body) 完成运行时校验。
   const user = await createUser(body)

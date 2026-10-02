@@ -1,6 +1,6 @@
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { basename, dirname, join } from 'pathe'
 import { scanServerRoutes } from '../src/route/scan'
 
@@ -22,11 +22,7 @@ async function createFixture(files: Record<string, string>) {
 }
 
 afterEach(async () => {
-  await Promise.all(
-    tempRoots.splice(0).map(root =>
-      rm(root, { recursive: true, force: true }),
-    ),
-  )
+  await Promise.all(tempRoots.splice(0).map(root => rm(root, { recursive: true, force: true })))
 })
 
 describe('scanServerRoutes', () => {
@@ -35,9 +31,7 @@ describe('scanServerRoutes', () => {
       'runtime/server/users.ts': 'export default () => "users"\n',
     })
 
-    await expect(
-      scanServerRoutes(root, 'runtime/server', '/demo'),
-    ).resolves.toEqual([
+    await expect(scanServerRoutes(root, 'runtime/server', '/demo')).resolves.toEqual([
       {
         handler: join(root, 'runtime/server/users.ts'),
         lazy: true,
@@ -49,13 +43,10 @@ describe('scanServerRoutes', () => {
 
   it('matches Nitro-style route normalization for groups, params, methods, envs, and index files', async () => {
     const root = await createFixture({
-      'runtime/server/(admin)/users/[id]/index.get.prod.ts':
-        'export default () => "user"\n',
+      'runtime/server/(admin)/users/[id]/index.get.prod.ts': 'export default () => "user"\n',
     })
 
-    await expect(
-      scanServerRoutes(root, 'runtime/server', '/demo'),
-    ).resolves.toEqual([
+    await expect(scanServerRoutes(root, 'runtime/server', '/demo')).resolves.toEqual([
       {
         env: 'prod',
         handler: join(root, 'runtime/server/(admin)/users/[id]/index.get.prod.ts'),
@@ -69,8 +60,7 @@ describe('scanServerRoutes', () => {
 
   it('supports regex route groups by stripping the matched prefix before mapping the route', async () => {
     const root = await createFixture({
-      'modules/demo/runtime/server/posts/[slug].ts':
-        'export default () => "post"\n',
+      'modules/demo/runtime/server/posts/[slug].ts': 'export default () => "post"\n',
     })
 
     await expect(
@@ -90,9 +80,7 @@ describe('scanServerRoutes', () => {
       'runtime/server/users/[user.id].ts': 'export default () => "user"\n',
     })
 
-    await expect(
-      scanServerRoutes(root, 'runtime/server', '/demo'),
-    ).resolves.toEqual([
+    await expect(scanServerRoutes(root, 'runtime/server', '/demo')).resolves.toEqual([
       {
         handler: join(root, 'runtime/server/users/[user.id].ts'),
         lazy: true,
@@ -107,9 +95,7 @@ describe('scanServerRoutes', () => {
       'runtime/server/[...foo-bar].ts': 'export default () => "catch-all"\n',
     })
 
-    await expect(
-      scanServerRoutes(root, 'runtime/server', '/demo'),
-    ).resolves.toEqual([
+    await expect(scanServerRoutes(root, 'runtime/server', '/demo')).resolves.toEqual([
       {
         handler: join(root, 'runtime/server/[...foo-bar].ts'),
         lazy: true,

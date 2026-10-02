@@ -6,7 +6,6 @@
     "url": "https://github.com/hzgotb/apim",
     "directory": "packages/cli"
   },
-  "type": "module",
   "bin": {
     "apim": "./bin/apim.mjs"
   },
@@ -14,12 +13,13 @@
     "bin",
     "dist"
   ],
+  "type": "module",
+  "main": "./dist/index.mjs",
   "exports": {
     ".": "./dist/index.mjs"
   },
-  "main": "./dist/index.mjs",
   "scripts": {
-    "build": "tsdown",
+    "build": "vp pack",
     "prepack": "pnpm build"
   }
 }

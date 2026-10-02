@@ -1,8 +1,5 @@
 import type { ScannedServerRoute } from '../route/scan'
-import {
-  clearMetaFieldCache,
-  getExportedMetaFields,
-} from './meta'
+import { clearMetaFieldCache, getExportedMetaFields } from './meta'
 
 export const APIM_MODULE_ID = '#apim/apim'
 
@@ -21,10 +18,7 @@ interface RouteSchema {
 
 type PayloadMap = Record<string, RouteSchema>
 
-function getRouteTargets(
-  routeSchema: RouteSchema,
-  method?: string,
-): PayloadSchema[] {
+function getRouteTargets(routeSchema: RouteSchema, method?: string): PayloadSchema[] {
   const targets: PayloadSchema[] = []
 
   if (!method || method.toUpperCase() === 'GET') {
@@ -53,11 +47,9 @@ function generatePayloadCode(payloadMap: PayloadMap) {
           if (schema.query) props.push(`query: ${schema.query}`)
           if (schema.res) props.push(`res: ${schema.res}`)
 
-          return [
-            `      ${method}: {`,
-            ...props.map(prop => `        ${prop},`),
-            '      }',
-          ].join('\n')
+          return [`      ${method}: {`, ...props.map(prop => `        ${prop},`), '      }'].join(
+            '\n',
+          )
         })
         .filter(Boolean)
         .join('\n')
@@ -86,7 +78,7 @@ async function buildPayloadMap(handlers: ScannedHandler[]) {
       const targets = getRouteTargets(payloadMap[route], method)
 
       for (const target of targets) {
-        metaFields.forEach((field) => {
+        metaFields.forEach(field => {
           target[field] = `${typeRef}['${field}']`
         })
       }
@@ -113,12 +105,7 @@ export async function genApimTemplate(
   ]
 
   if (injectApimToGlobal) {
-    lines.push(
-      '',
-      'declare global {',
-      `  var apim: typeof import('${APIM_MODULE_ID}').apim`,
-      '}',
-    )
+    lines.push('', 'declare global {', `  var apim: typeof import('${APIM_MODULE_ID}').apim`, '}')
   }
 
   lines.push('', 'export {}')

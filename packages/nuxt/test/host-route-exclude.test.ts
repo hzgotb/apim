@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { setup, $fetch } from '@nuxt/test-utils/e2e'
 
 describe('exclude', async () => {
