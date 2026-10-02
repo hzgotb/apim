@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Nuxt module for typed API collections and the apim compile-time macro",
   "license": "MIT",
+  "homepage": "https://hzgotb.github.io/apim/packages/nuxt",
   "repository": {
     "type": "git",
     "url": "https://github.com/hzgotb/apim",

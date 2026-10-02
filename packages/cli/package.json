@@ -1,6 +1,9 @@
 {
   "name": "@hzgotb/apim-cli",
   "version": "0.0.1",
+  "description": "CLI for scaffolding apim API modules and handlers",
+  "license": "MIT",
+  "homepage": "https://hzgotb.github.io/apim/packages/cli",
   "repository": {
     "type": "git",
     "url": "https://github.com/hzgotb/apim",

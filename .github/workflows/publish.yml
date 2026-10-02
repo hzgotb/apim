@@ -1,12 +1,6 @@
 name: Publish / npm
 
 on:
-  workflow_call:
-    inputs:
-      tag:
-        description: Git tag to publish
-        required: true
-        type: string
   workflow_dispatch:
     inputs:
       tag:
@@ -51,13 +45,22 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Configure npm for Trusted Publishing
+      - name: Verify release version
         run: |
-          mkdir -p ~/.npm
-          cat > ~/.npmrc <<'EOF'
-          registry=https://registry.npmjs.org/
-          //registry.npmjs.org/:_authToken=${{ secrets.NPM_PUBLISH_TOKEN }}
-          EOF
+          VERSION="${{ steps.publish-ref.outputs.value }}"
+          VERSION="${VERSION#v}"
+          test "$(node -p "require('./packages/cli/package.json').version")" = "$VERSION"
+          test "$(node -p "require('./packages/nuxt/package.json').version")" = "$VERSION"
 
-      - name: Publish nuxt + cli packages with pnpm workspaces
-        run: pnpm -r --filter "@hzgotb/apim-nuxt" --filter "@hzgotb/apim-cli" publish --access public --no-git-checks
+      - name: Run checks
+        run: pnpm test && pnpm test:types && pnpm test:consumers
+
+      - name: Publish CLI package
+        run: pnpm --filter "@hzgotb/apim-cli" publish --access public --no-git-checks --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+
+      - name: Publish Nuxt package
+        run: pnpm --filter "@hzgotb/apim-nuxt" publish --access public --no-git-checks --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
